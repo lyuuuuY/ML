@@ -5,27 +5,41 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-# Before Everything: Cope with raw data
+# Assignment 3
 
-Load it first
+## 3.1 Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features? Motivate your answer.
+
+## 3.2
+
+### 3.2.1 Report the probabilistic equation of the estimated model (i.e., how the target depends on the features and the estimated model parameters probabilistically).
+
+### 3.2.2  Comment on the quality of the classification by using these results. 
+
+## 3.3  Comment whether the decision boundary seems to catch the data distribution well.
+
+## 3.4  By using these plots, comment on what happens with the prediction when r value changes.
+
+## 3.5  
+
+## 3.5.1 What can you say about the quality of this model compared to the previous logistic regression model? 
+
+### 3.5.2 How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy? 
+
+
+
+## Appendix for Assignment 3
 
 ```{r load csv}
 data = read.csv("pima-indians-diabetes.csv")
 head(data)
 ```
 
-Apparently it is not accessible enough.
-
-```{r}
+```{r change names for data column}
 colnames(data) = list("pegnant_times", "glucose_level", "blood_pressure", "skin_thickness", "serum_insulin", "boby_mass", "diabetes_pedigree_func", "age", "diabetes")
 head(data)
 ```
-
-# 1. Scatter Plot
-
-The mapping of plot would be (age, glucose level)
-
-```{r plot}
+3.1
+```{r plot for 2 features}
 library(ggplot2)
 
 ggplot(data, aes(age, glucose_level, color = as.factor(diabetes))) + 
@@ -36,22 +50,14 @@ ggplot(data, aes(age, glucose_level, color = as.factor(diabetes))) +
        scale_color_manual(values = c("0" = "green", "1" = "red")) +
       theme_minimal()
 ```
-
-My answer about whether given 2 variables can classify diabetes levels via logistic regression To be honst, in such a dimension, I cannot find a clear boudary to classify 2 groups.
-
-# 2. Train the Logistic Regression
-
-## 2.1 Data Processing
-
-```{r}
+3.2
+```{r data processing for model}
 model_data = as.data.frame(x = cbind(data$glucose_level, data$age, data$diabetes))
 colnames(model_data) = list("x1", "x2", "label")
 
 head(model_data)
 
 ```
-
-## 2.2 Model Train
 
 ```{r model construction}
 library(lattice)
@@ -63,13 +69,7 @@ model = train(as.factor(label) ~ .,
 summary(model)
 ```
 
-## 2.3 Probabilistic Equation
-
-report required there
-
-## 2.5 Calculate Loss
-
-```{r Output}
+```{r calculate loss and evaluate}
 output_prob = predict(model, model_data, type = "prob")[,2]
 output_label  = ifelse(output_prob >= 0.5, 1, 0)
 head(output_label)
@@ -81,9 +81,7 @@ acc = mean(output_label == model_data$label)
 acc
 ```
 
-## 2.4 Plot agin
-
-```{r}
+```{r plot for showing predictted values}
 ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_label))) + 
       geom_point(size = 2) +
       labs(title = "Scatter Plot between Age and Glucose Level",
@@ -93,15 +91,8 @@ ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_labe
       theme_minimal()
 ```
 
-## 2.5 Comment on the Classification Quality
-
-lalala
-
-# 3. Find the boundary
-
-## 3.1 Add the Cruve in Plot
-
-```{r}
+3.3
+```{r add the decision boundary into plot}
 coeff = coef(model$finalModel)
 
 intercept = coeff[1]
@@ -112,7 +103,7 @@ param_x2 = coeff[3]
 cat("Boundary Decision：", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = 0")
 ```
 
-```{r}
+```{r plot for showing predictted values with decision boundaries}
 # create the gird
 x2_range = seq(min(model_data$x2), max(model_data$x2), length.out = dim(model_data))
 x1_bound = -(intercept + param_x2 * x2_range) / param_x1
@@ -128,13 +119,8 @@ ggplot(cbind(model_data,output_label), aes(x2, x1)) +
       theme_minimal()
 ```
 
-## 3.2 Comment on Decision Boundary
-
-pass
-
-# 4. Set Different Threholds in Plot
-## 4.1 Code
-```{r}
+3.4
+```{r plot for showing different r values}
 r = c(0.2, 0.8)
 output_label  = ifelse(output_prob >= r[1], 1, 0)
 
@@ -156,15 +142,8 @@ ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_labe
        scale_color_manual(values = c("0" = "green", "1" = "red")) +
       theme_minimal()
 ```
-
-## 4.2Comments
-pass
-
-# 5. Trick
-
-## 5.1 Data Processing
-
-```{r}
+3.5
+```{r computing new features}
 label = model_data$label
 model_data$label = NULL
 
@@ -176,9 +155,7 @@ model_data$label = label
 head(model_data)
 ```
 
-## 5.2 Plot
-
-```{r}
+```{r train the new model using new features}
 model = train(as.factor(label) ~ ., 
               data = model_data, 
               method = "glm", 
@@ -197,7 +174,7 @@ acc = mean(output_label == model_data$label)
 acc
 ```
 
-```{r}
+```{r plot for showing the decision boundaries}
 db_points = model_data[abs(output_prob - 0.5) < 0.05,]
 
 ggplot() +
@@ -208,9 +185,5 @@ ggplot() +
   scale_color_manual(values = c("0" = "green", "1" = "red")) +
   geom_smooth(data = db_points, aes(x = x2, y = x1), method = "loess",color = "black", linetype = "dashed") +
   theme_minimal()
-
-               
 ```
 
-# 5.3 Report
-lalala
