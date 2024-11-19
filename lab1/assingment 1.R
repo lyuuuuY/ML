@@ -22,7 +22,6 @@ misclassification_train <- 1 - sum(diag(train_confusion_matrix)) / sum(train_con
 
 misclassification_test <- 1 - sum(diag(test_confusion_matrix)) / sum(test_confusion_matrix)
 
-###comment
 
 train_prob <- train_model$prob
 index_eight <- which(train$X0.26 == "8")
@@ -54,11 +53,11 @@ heatmap(digit_matrix_easy_1, Colv = NA, Rowv = NA,
 heatmap(digit_matrix_easy_2, Colv = NA, Rowv = NA, 
         main = paste("easiest_indices:",easiest_indices[2] ))
 heatmap(digit_matrix_hard_1, Colv = NA, Rowv = NA, 
-        main = paste("easiest_indices:",hardest_indices[1] ))
+        main = paste("hardest_indices:",hardest_indices[1] ))
 heatmap(digit_matrix_hard_2, Colv = NA, Rowv = NA, 
-        main = paste("easiest_indices:",hardest_indices[2] ))
+        main = paste("hardest_indices:",hardest_indices[2] ))
 heatmap(digit_matrix_hard_3, Colv = NA, Rowv = NA, 
-        main = paste("easiest_indices:",hardest_indices[3] ))
+        main = paste("hardest_indices:",hardest_indices[3] ))
 
 
 k_values <- c(1:30)
