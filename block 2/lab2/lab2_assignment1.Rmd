@@ -64,7 +64,5 @@ cat("Node Size = 12     Condition: x1<0.5\n")
 trainFor3000Times(node_size = 12, condition = "x1<0.5")
 cat("Node Size = 12     Condition: (x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)\n")
 trainFor3000Times(node_size = 12, condition = "(x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)")
-
-
 ```
 
