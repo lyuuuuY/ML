@@ -1,3 +1,7 @@
 # Machine Learning Lab
-## Some suggestions
-We'd better put our data files inio a specific folder, but any way
+## 文件结构
+LAB1data存放数据
+LAB1figure存放图像
+SourceCode存放源码
+report相关文件放在根目录下即可Lab1
+
