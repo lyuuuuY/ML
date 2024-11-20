@@ -88,10 +88,6 @@ pred_test <- fitted(final_model)
 test_cm <- table(Predicted = pred_test, Actual = test$X0.26)
 test_error <- 1 - sum(diag(test_cm)) / sum(test_cm)
 
-
-
-#5
-
 valid_cross_entropy <- numeric(length(k_values))
 class_levels <- levels(train$X0.26)
 for (i in k_values) {
@@ -117,6 +113,6 @@ plot(k_values, valid_cross_entropy, type = "l", col = "red",
      xlab = "k_values", ylab = "valid_cross_entropy", main = "valid_cross_entropy with different k")
 
 min_value <- min(valid_cross_entropy)
-threshold <- min_value * 1.1
+threshold <- min_value * 1.3
 first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
