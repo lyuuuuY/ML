@@ -3,9 +3,9 @@ title: "report_1"
 author: "Yanjie Lyu"
 date: "2024-11-19"
 output:
-  bookdown::pdf_document2: default
   pdf_document:
     latex_engine: xelatex
+  bookdown::pdf_document2: default
 ---
 
 ```{r setup, include=FALSE}
@@ -137,7 +137,7 @@ first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ## Comment on the quality of predictions for different digits and on the overall prediction quality.
 
-According to the test confusion matrix and misclassification rate (see Figure \@ref(fig:cm) and \@ref(fig:mr)), the model performs best on number "0", but there is a high rate on number "5","8",and "9".
+According to the test confusion matrix and misclassification rate (see Figure \@ref(fig:cm) and \@ref(fig:mr), the model performs best on number "0", but there is a high rate on number "5","8",and "9".
 
 The overall misclassification rates of training data and test data are 0.04238619 and 0.05857741, which is acceptable.
 
@@ -177,9 +177,6 @@ For multiple classification problems, cross entropy can reflect the degree of co
 
 The misclassification rate only considers correct or incorrect classifications, but the cross-entropy is more sensitive to the probabilistic output of the model and therefore reflects the performance of the model in more detail. If a model misclassifies, but the probability of prediction is very close to the correct answer, the increase in cross entropy loss will be smaller than the misclassification rate, reflecting a more nuanced error situation.
 
-
-
-
 ```{r include=FALSE}
 # data processing code for assignment 3
 # I put code here, cause there would be conflicts about names of variables
@@ -207,36 +204,57 @@ param_x1 = coeff[2]
 param_x2 = coeff[3]
 
 
-loss  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
-acc = mean(output_label == model_data$label)
+loss_model1  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
+acc_model1 = mean(output_label == model_data$label)
 ```
+
 # Assignment 3
 
-## 3.1 Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features? Motivate your answer.
+## 3.1 Make a scatterplot showing a Plasma glucose concentration on Age where
+observations are colored by Diabetes levels. Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features?  
 
-From the scatter plot between the given 2 features, that there is no any apparent boundary to classify the green points and red points representing whether being healthy or having diabetes. Based on that, I think it is not easy.
+The plot is here \@ref(fig:rd).
+From the scatter plot between the given 2 features, that there is no any apparent boundary to classify the green points and red points representing whether being healthy or having diabetes. Based on that, I think it is not easy. 
 
-## 3.2
+## 3.2 
 ### 3.2.1 Report the probabilistic equation of the estimated model (i.e., how the target depends on the features and the estimated model parameters probabilistically).
-```{r echo=FALSE}
-cat("Boundary Decision：", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = 0")
-```
 
-### 3.2.2  Comment on the quality of the classification by using these results. 
+The equation is: $$
+P(y|X,\beta) = \sigma(X\beta) = \frac{1}{1+exp(-X\beta)}
+$$ where $\sigma$() represents the sigmod function, $X$ is input data, $\beta$ is coefficients, and $y$ is predicted output.
+
+### 3.2.2 Comment on the quality of the classification by using these results.
+
 Based on accuracy of the prediction, besides the comparison between plots, it is obvious that the quality is not good enough to classify them well.
 ```{r echo=FALSE}
-cat("The accuracy can be considered as quality of classification:", acc,"\n")
-cat("The misclassification error is:", loss, "\n")
+cat("The accuracy can be considered as quality of classification:", acc_model1,"\n")
+cat("The misclassification error is:", loss_model1, "\n")
 ```
 
+### 3.2.3 Make the scatter plot.
 
-## 3.3  Comment whether the decision boundary seems to catch the data distribution well.
-The decision boundary is represented by a linear function, while the data distribution is more complicated than the data which can be caught by linear function.
+The plot is here \@ref(fig:po). 
 
-## 3.4  By using these plots, comment on what happens with the prediction when r value changes.
-With the increasing value of r, less sample would be predicted as positive.
+## 3.3 
+### 3.3.1 Use the model estimated in step 2 to a) report the equation of the decision boundary between the two classes b) add a curve showing this boundary to the scatter plot in step 2.
 
-## 3.5  
+The plot with the curve is here \@ref(fig:db).
+```{r echo=FALSE}
+cat("Decision Boundary:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = y bar")
+```
+
+### 3.3.2 Comment whether the decision boundary seems to catch the data distribution well.
+
+The decision boundary is represented by a linear function, while the data distribution is more complicated than the data which can be caught by linear function. 
+
+## 3.4 
+### 3.4.1 Make same kind of plots as in step 2 but use thresholds 𝑟𝑟=0.2 and 𝑟𝑟=0.8. 
+The plot with threhold = 0.2 is here \@ref(fig:th2), the plot with threhold = 0.8 is here \@ref(fig:th8).
+
+## 3.4.2 By using these plots, comment on what happens with the prediction when r value changes. 
+With the increasing value of r, less sample would be predicted as positive. 
+
+## 3.5
 ```{r include=FALSE}
 label = model_data$label
 model_data$label = NULL
@@ -253,22 +271,32 @@ model = train(as.factor(label) ~ .,
               family = "binomial")
 output_prob = predict(model, model_data, type = "prob")[,2]
 output_label  = ifelse(output_prob >= 0.5, 1, 0)
-loss  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
-acc = mean(output_label == model_data$label)
+loss_model2 = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
+acc_model2 = mean(output_label == model_data$label)
 ```
+### 3.5.1 Create a scatterplot of the same kind as in step 2 for this model and compute the training misclassification rate.
 
-
-## 3.5.1 What can you say about the quality of this model compared to the previous logistic regression model? 
-After adding the non-linear elements into feature, the performance improved a little, but either cannot classify well.
+The plot is here \@ref(fig:po2)
 ```{r echo=FALSE}
-cat("The misclassification error is:", loss, "\n")
-cat("The accuracy can be considered as quality of classification:", acc)
+cat("The misclassification error of present model is:", loss_model2, "\n")
 ```
+### 3.5.2 What can you say about the quality of this model compared to the previous logistic regression model?
 
+After adding the non-linear elements into feature, the performance improved a little, but either cannot classify well.
 
-### 3.5.2 How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy? 
-The decision boundary generated from original features is a linear function, while the present decision boundary in the shape of exponential function plot.
+```{r echo=FALSE}
 
+cat("The misclassification error of present model is:", loss_model2, "\n")
+cat("The misclassification error of previous model is:", loss_model1, "\n")
+```
+### 3.5.3 How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy?
+
+The decision boundary generated from original features is a linear function, while the present decision boundary in the shape of exponential function plot. In the meanwhile, it does improve the accuracy but slightly.
+
+```{r echo=FALSE}
+cat("The accuracy of present model:", acc_model2, "\n")
+cat("The accuracy of previous model: ", acc_model1, "\n")
+```
 
 # Appendix
 
@@ -396,7 +424,134 @@ first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ```
 
-## Figure
+## Code for assignment 3
+
+```{r， echo=TRUE, eval=FALSE}
+data = read.csv("LAB1data/pima-indians-diabetes.csv")
+colnames(data) = list("pegnant_times", 
+                      "glucose_level", 
+                      "blood_pressure", 
+                      "skin_thickness", 
+                      "serum_insulin", 
+                      "boby_mass", 
+                      "diabetes_pedigree_func", 
+                      "age", 
+                      "diabetes")
+
+library(lattice)
+library(caret)
+library(ggplot2)
+# plot 1
+ggplot(data, aes(age, glucose_level, color = as.factor(diabetes))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+# model 1
+model_data = as.data.frame(x = cbind(data$glucose_level, data$age, data$diabetes))
+colnames(model_data) = list("x1", "x2", "label")
+
+
+model = train(as.factor(label) ~ ., 
+              data = model_data, 
+              method = "glm", 
+              family = "binomial")
+
+output_prob = predict(model, model_data, type = "prob")[,2]
+output_label  = ifelse(output_prob >= 0.5, 1, 0)
+loss_model1  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
+cat("The misclassification error is:", loss_model1, "\n")
+acc_model1 = mean(output_label == model_data$label)
+cat("The accuracy can be considered as quality of classification:", acc_model1)
+
+# plot 2
+ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_label))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+coeff = coef(model$finalModel)
+intercept = coeff[1]
+param_x1 = coeff[2]
+param_x2 = coeff[3]
+cat("probabilistic equation:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = y bar")
+
+
+x2_range = seq(min(model_data$x2), max(model_data$x2), length.out = dim(model_data))
+x1_bound = -(intercept + param_x2 * x2_range) / param_x1
+# plot 3
+ggplot(cbind(model_data,output_label), aes(x2, x1)) + 
+  geom_point(aes(color = as.factor(output_label)),size = 2) +
+  geom_line(aes(x = x2_range, y = x1_bound), color = "black", linetype = "dashed")+
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+r = c(0.2, 0.8)
+output_label  = ifelse(output_prob >= r[1], 1, 0)
+# plot 4
+ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_label))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+output_label  = ifelse(output_prob >= r[2], 1, 0)
+ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_label))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+label = model_data$label
+model_data$label = NULL
+
+for (i in 0:4){
+  feature_name = paste0("z", as.character(i+1))
+  model_data[[feature_name]] = (model_data$x1 ** (4 - i)) * (model_data$x2 ** i)
+}
+model_data$label = label
+head(model_data)
+# model 2
+model = train(as.factor(label) ~ ., 
+              data = model_data, 
+              method = "glm", 
+              family = "binomial")
+output_prob = predict(model, model_data, type = "prob")[,2]
+output_label  = ifelse(output_prob >= 0.5, 1, 0)
+
+loss_model2  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
+acc_model2 = mean(output_label == model_data$label)
+cat("The misclassification error is:", loss_model2, "\n")
+cat("The accuracy can be considered as quality of classification:", acc_model2)
+
+db_points = model_data[abs(output_prob - 0.5) < 0.05,]
+
+# plot 5
+ggplot() +
+  geom_point(data = cbind(model_data, output_label), aes(x = x2, y = x1, color = as.factor(output_label))) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  geom_smooth(data = db_points, aes(x = x2, y = x1), method = "loess",color = "black", linetype = "dashed") +
+  theme_minimal()
+
+```
+
+## Figure for assignment 1
 
 ```{r echo=FALSE, fig.cap="A.1.1: Test Confusion Matrix",label="cm", out.width="80%"}
 library(knitr)
@@ -424,4 +579,31 @@ include_graphics("./LAB1figure/000014.png")
 
 ```{r echo=FALSE, fig.cap="A.1.6: Validation Cross Entropy", out.width="80%"}
 include_graphics("./LAB1figure/000010.png")
+```
+
+## Figures for assignment 3
+
+```{r echo=FALSE, fig.cap="A.3.1: Raw Data Distribution", out.width="80%", label="rd"}
+library(knitr)
+include_graphics("./LAB1figure/3.1.png")
+```
+
+```{r echo=FALSE, fig.cap="A.3.2: Prediction Outcome", out.width="80%", label="po"}
+include_graphics("./LAB1figure/3.2.png")
+```
+
+```{r echo=FALSE, fig.cap="A.3.3: Prediction Outcome with Decision Boundary", out.width="80%", label="db"}
+include_graphics("./LAB1figure/3.3.png")
+```
+
+```{r echo=FALSE, fig.cap="A.3.4.1: Prediction Outcome with Threhold = 0.2", out.width="80%", label="th2"}
+include_graphics("./LAB1figure/3.4.1.png")
+```
+
+```{r echo=FALSE, fig.cap="A.3.4.2: Prediction Outcome with Threhold = 0.8", out.width="80%", label="th8"}
+include_graphics("./LAB1figure/3.4.2.png")
+```
+
+```{r echo=FALSE, fig.cap="A.3.5: Prediction Outcome based Computed Features with Decision Boundary", out.width="80%", label="po2"}
+include_graphics("./LAB1figure/3.5.png")
 ```
