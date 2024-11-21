@@ -3,9 +3,10 @@ title: "report_1"
 author: "Yanjie Lyu"
 date: "2024-11-19"
 output:
-  pdf_document:
+  bookdown::pdf_document2:
+    number_sections: true
     latex_engine: xelatex
-  bookdown::pdf_document2: default
+
 ---
 
 ```{r setup, include=FALSE}
@@ -137,7 +138,7 @@ first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ## Comment on the quality of predictions for different digits and on the overall prediction quality.
 
-According to the test confusion matrix and misclassification rate (see Figure \@ref(fig:cm) and \@ref(fig:mr), the model performs best on number "0", but there is a high rate on number "5","8",and "9".
+According to the test confusion matrix and misclassification rate (see Figure \@ref(fig:cm) and \@ref(fig:mr)), the model performs best on number "0", but there is a high rate on number "5","8",and "9".
 
 The overall misclassification rates of training data and test data are 0.04238619 and 0.05857741, which is acceptable.
 
@@ -178,34 +179,127 @@ For multiple classification problems, cross entropy can reflect the degree of co
 The misclassification rate only considers correct or incorrect classifications, but the cross-entropy is more sensitive to the probabilistic output of the model and therefore reflects the performance of the model in more detail. If a model misclassifies, but the probability of prediction is very close to the correct answer, the increase in cross entropy loss will be smaller than the misclassification rate, reflecting a more nuanced error situation.
 
 ```{r include=FALSE}
-# data processing code for assignment 3
-# I put code here, cause there would be conflicts about names of variables
-# written by Trace
-
 data = read.csv("LAB1data/pima-indians-diabetes.csv")
-colnames(data) = list("pegnant_times", "glucose_level", "blood_pressure", "skin_thickness", "serum_insulin", "boby_mass", "diabetes_pedigree_func", "age", "diabetes")
+colnames(data) = list("pegnant_times", 
+                      "glucose_level", 
+                      "blood_pressure", 
+                      "skin_thickness", 
+                      "serum_insulin", 
+                      "boby_mass", 
+                      "diabetes_pedigree_func", 
+                      "age", 
+                      "diabetes")
 
-model_data = as.data.frame(x = cbind(data$glucose_level, data$age, data$diabetes))
-colnames(model_data) = list("x1", "x2", "label")
 library(lattice)
 library(caret)
+library(ggplot2)
+# plot 1
+ggplot(data, aes(age, glucose_level, color = as.factor(diabetes))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+# model 1
+model_data = as.data.frame(x = cbind(data$glucose_level, data$age, data$diabetes))
+colnames(model_data) = list("x1", "x2", "label")
+
+
 model = train(as.factor(label) ~ ., 
               data = model_data, 
               method = "glm", 
               family = "binomial")
-# summary(model)
 
 output_prob = predict(model, model_data, type = "prob")[,2]
 output_label  = ifelse(output_prob >= 0.5, 1, 0)
+loss_model1  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
+cat("The misclassification error is:", loss_model1,"\n")
+acc_model1 = mean(output_label == model_data$label)
+cat("The accuracy can be considered as quality of classification:", acc_model1)
+
+# plot 2
+ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_label))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
 
 coeff = coef(model$finalModel)
 intercept = coeff[1]
 param_x1 = coeff[2]
 param_x2 = coeff[3]
+cat("probabilistic equation:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = y bar")
 
 
-loss_model1  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
-acc_model1 = mean(output_label == model_data$label)
+x2_range = seq(min(model_data$x2), max(model_data$x2), length.out = dim(model_data))
+x1_bound = -(intercept + param_x2 * x2_range) / param_x1
+# plot 3
+ggplot(cbind(model_data,output_label), aes(x2, x1)) + 
+  geom_point(aes(color = as.factor(output_label)),size = 2) +
+  geom_line(aes(x = x2_range, y = x1_bound), color = "black", linetype = "dashed")+
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+r = c(0.2, 0.8)
+output_label  = ifelse(output_prob >= r[1], 1, 0)
+# plot 4
+ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_label))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+output_label  = ifelse(output_prob >= r[2], 1, 0)
+ggplot(cbind(model_data,output_label), aes(x2, x1, color = as.factor(output_label))) + 
+  geom_point(size = 2) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  theme_minimal()
+
+label = model_data$label
+model_data$label = NULL
+
+for (i in 0:4){
+  feature_name = paste0("z", as.character(i+1))
+  model_data[[feature_name]] = (model_data$x1 ** (4 - i)) * (model_data$x2 ** i)
+}
+model_data$label = label
+head(model_data)
+# model 2
+model = train(as.factor(label) ~ ., 
+              data = model_data, 
+              method = "glm", 
+              family = "binomial")
+output_prob = predict(model, model_data, type = "prob")[,2]
+output_label  = ifelse(output_prob >= 0.5, 1, 0)
+
+loss_model2  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
+acc_model2 = mean(output_label == model_data$label)
+cat("The misclassification error is:", loss_model2, "\n")
+cat("The accuracy can be considered as quality of classification:", acc_model2)
+
+db_points = model_data[abs(output_prob - 0.5) < 0.05,]
+
+# plot 5
+ggplot() +
+  geom_point(data = cbind(model_data, output_label), aes(x = x2, y = x1, color = as.factor(output_label))) +
+  labs(title = "Scatter Plot between Age and Glucose Level",
+       x = "Age", 
+       y = "Glucose Level") + 
+  scale_color_manual(values = c("0" = "green", "1" = "red")) +
+  geom_smooth(data = db_points, aes(x = x2, y = x1), method = "loess",color = "black", linetype = "dashed") +
+  theme_minimal()
 ```
 
 # Assignment 3
@@ -227,8 +321,10 @@ $$ where $\sigma$() represents the sigmod function, $X$ is input data, $\beta$ i
 
 Based on accuracy of the prediction, besides the comparison between plots, it is obvious that the quality is not good enough to classify them well.
 ```{r echo=FALSE}
-cat("The accuracy can be considered as quality of classification:", acc_model1,"\n")
-cat("The misclassification error is:", loss_model1, "\n")
+result_1 <- paste("The accuracy can be considered as quality of classification:", acc_model1)
+print(result_1)
+result_2 <- paste("Misclassification error is:", loss_model1)
+print(result_2)
 ```
 
 ### 3.2.3 Make the scatter plot.
@@ -255,7 +351,7 @@ The plot with threhold = 0.2 is here \@ref(fig:th2), the plot with threhold = 0.
 With the increasing value of r, less sample would be predicted as positive. 
 
 ## 3.5
-```{r include=FALSE}
+```{r eval=FALSE, include=FALSE}
 label = model_data$label
 model_data$label = NULL
 
@@ -426,7 +522,7 @@ first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ## Code for assignment 3
 
-```{r， echo=TRUE, eval=FALSE}
+```{r, echo=TRUE, eval=FALSE}
 data = read.csv("LAB1data/pima-indians-diabetes.csv")
 colnames(data) = list("pegnant_times", 
                       "glucose_level", 
@@ -463,7 +559,7 @@ model = train(as.factor(label) ~ .,
 output_prob = predict(model, model_data, type = "prob")[,2]
 output_label  = ifelse(output_prob >= 0.5, 1, 0)
 loss_model1  = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
-cat("The misclassification error is:", loss_model1, "\n")
+cat("The misclassification error is:", loss_model1,"\n")
 acc_model1 = mean(output_label == model_data$label)
 cat("The accuracy can be considered as quality of classification:", acc_model1)
 
