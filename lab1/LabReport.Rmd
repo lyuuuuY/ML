@@ -305,7 +305,7 @@ ggplot() +
 # Assignment 3
 
 ## Make a scatterplot showing a Plasma glucose concentration on Age where observations are colored by Diabetes levels. Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features?  
-The plot is here \@ref(fig:rd).
+The plot is shown in Figure \@ref(fig:rd).
 From the scatter plot between the given 2 features, that there is no any apparent boundary to classify the green points and red points representing whether being healthy or having diabetes. Based on that, I think it is not easy. 
 
 ## Report the probabilistic equation of the estimated model (i.e., how the target depends on the features and the estimated model parameters probabilistically). Comment on the quality of the classification by using these results. Make the scatter plot.
@@ -320,10 +320,10 @@ print(result_1)
 result_2 <- paste("Misclassification error is:", loss_model1)
 print(result_2)
 ```
-The plot is here \@ref(fig:po). 
+The plot is shown in Figure \@ref(fig:po). 
 
 ## Use the model estimated in step 2 to a) report the equation of the decision boundary between the two classes b) add a curve showing this boundary to the scatter plot in step 2. Comment whether the decision boundary seems to catch the data distribution well.
-The plot with the curve is here \@ref(fig:db).
+The plot with the curve is shown in Figure \@ref(fig:db).
 ```{r echo=FALSE}
 cat("Decision Boundary:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = y bar")
 ```
@@ -331,7 +331,7 @@ cat("Decision Boundary:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = 
 The decision boundary is represented by a linear function, while the data distribution is more complicated than the data which can be caught by linear function. 
 
 ## Make same kind of plots as in step 2 but use thresholds r=0.2 and r=0.8. By using these plots, comment on what happens with the prediction when r value changes. 
-The plot with threhold = 0.2 is here \@ref(fig:th2), the plot with threhold = 0.8 is here \@ref(fig:th8).
+The plot with threhold = 0.2 and threhold = 0.8 are shown in Figure \@ref(fig:th2) and Figure \@ref(fig:th8), repectively.
 With the increasing value of r, less sample would be predicted as positive. 
 
 ```{r eval=FALSE, include=FALSE}
@@ -354,7 +354,7 @@ loss_model2 = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 
 acc_model2 = mean(output_label == model_data$label)
 ```
 ## Create a scatterplot of the same kind as in step 2 for this model and compute the training misclassification rate. What can you say about the quality of this model compared to the previous logistic regression model?  How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy?
-The plot is here \@ref(fig:po2)
+The plot is shown in Figure \@ref(fig:po2)
 ```{r echo=FALSE}
 cat("The misclassification error of present model is:", loss_model2, "\n")
 ```
