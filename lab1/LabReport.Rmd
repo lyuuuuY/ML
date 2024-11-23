@@ -142,6 +142,12 @@ threshold <- min_value * 1.3
 first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ```
+# Contributions
+The contributions are distributed as follows:
+Yanjie Lyu: Worked on Assignment 1 and Question 1 from Assignment 4.
+Yi Yang: Worked on Assignment 2 and Question 3 from Assignment 4.
+Qingxuan Cui: Worked on Assignment 3 and Question 2 from Assignment 4.
+After completing their respective assignments (including code writing and analysis), all results were shared and thoroughly discussed among the three members.
 
 # Assignment 1
 
@@ -602,23 +608,39 @@ balanced model complexity that avoids both overfitting and underfitting.
 
 # Assignment 3
 
-## Make a scatterplot showing a Plasma glucose concentration on Age where observations are colored by Diabetes levels. Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features?
+## Step1
 
-The plot is shown in Figure \@ref(fig:rd). From the scatter plot between
-the given 2 features, that there is no any apparent boundary to classify
+### Make a scatterplot showing a Plasma glucose concentration on Age where observations are colored by Diabetes levels
+
+The plot is shown in Figure \@ref(fig:rd). 
+
+### Debate whether Diabetes is easy to classify by a standard logistic regression model
+
+From the scatter plot between the given 2 features, that there is no any apparent boundary to classify
 the green points and red points representing whether being healthy or
 having diabetes. Based on that, I think it is not easy.
 
-## Report the probabilistic equation of the estimated model (i.e., how the target depends on the features and the estimated model parameters probabilistically). Comment on the quality of the classification by using these results. Make the scatter plot.
+## Step2
 
-The equation is: $$
+### Report the probabilistic equation of the estimated model
+
+The equation is: 
+$$
 P(y|X,\beta) = \sigma(X\beta) = \frac{1}{1+exp(-X\beta)}
-$$ where $\sigma$() represents the sigmod function, $X$ is input data,
-$\beta$ is coefficients, and $y$ is predicted output.
+$$ 
+where:
+$\sigma$() represents the sigmod function
 
-Based on accuracy of the prediction, besides the comparison between
-plots, it is obvious that the quality is not good enough to classify
-them well.
+$X$ is input data
+
+$\beta$ is coefficients
+
+$y$ is predicted output
+
+### Comment on the quality of the classification by using these results
+
+Based on accuracy of the prediction, besides the comparison between plots, 
+it is obvious that the quality is not good enough to classify them well.
 
 ```{r echo=FALSE}
 result_1 <- paste("The accuracy can be considered as quality of classification:", acc_model1)
@@ -626,27 +648,38 @@ print(result_1)
 result_2 <- paste("Misclassification error is:", loss_model1)
 print(result_2)
 ```
+### Make the scatter plot
 
 The plot is shown in Figure \@ref(fig:po).
 
-## Use the model estimated in step 2 to a) report the equation of the decision boundary between the two classes b) add a curve showing this boundary to the scatter plot in step 2. Comment whether the decision boundary seems to catch the data distribution well.
+## Step3
 
-The plot with the curve is shown in Figure \@ref(fig:db).
+### Use the model estimated in step 2 to report the equation of the decision boundary between the two classes
 
 ```{r echo=FALSE}
 cat("Decision Boundary:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = y bar")
 ```
 
+### Add a curve showing this boundary to the scatter plot in step 2
+
+The plot with the curve is shown in Figure \@ref(fig:db). 
+
+### Comment whether the decision boundary seems to catch the data distribution well
+
 The decision boundary is represented by a linear function, while the
 data distribution is more complicated than the data which can be caught
 by linear function.
 
-## Make same kind of plots as in step 2 but use thresholds r=0.2 and r=0.8. By using these plots, comment on what happens with the prediction when r value changes.
+## Step4
+
+### Make same kind of plots as in step 2 but use thresholds r=0.2 and r=0.8
 
 The plot with threhold = 0.2 and threhold = 0.8 are shown in Figure
-\@ref(fig:th2) and Figure \@ref(fig:th8), repectively. With the
-increasing value of r, less sample would be predicted as positive.
+\@ref(fig:th2) and Figure \@ref(fig:th8), repectively.
 
+### By using these plots, comment on what happens with the prediction when r value changes
+
+With the increasing value of r, less sample would be predicted as positive.
 ```{r eval=FALSE, include=FALSE}
 label = model_data$label
 model_data$label = NULL
@@ -667,31 +700,33 @@ loss_model2 = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 
 acc_model2 = mean(output_label == model_data$label)
 ```
 
-## Create a scatterplot of the same kind as in step 2 for this model and compute the training misclassification rate. What can you say about the quality of this model compared to the previous logistic regression model? How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy?
+## Step5
+
+### Create a scatterplot of the same kind as in step 2 for this model and compute the training misclassification rate
 
 The plot is shown in Figure \@ref(fig:po2)
-
 ```{r echo=FALSE}
-cat("The misclassification error of present model is:", loss_model2, "\n")
+cat("The misclassification error of the present model is:", loss_model2, "\n")
 ```
 
-After adding the non-linear elements into feature, the performance
+### What can you say about the quality of this model compared to the previous logistic regression model
+
+After adding the non-linear elements into features, the performance of the model
 improved a little, but either cannot classify well.
-
 ```{r echo=FALSE}
 
-cat("The misclassification error of present model is:", loss_model2, "\n")
-cat("The misclassification error of previous model is:", loss_model1, "\n")
+cat("The misclassification error of the present model is:", loss_model2, "\n")
+cat("The misclassification error of the previous model is:", loss_model1, "\n")
 ```
 
-The decision boundary generated from original features is a linear
-function, while the present decision boundary in the shape of
-exponential function plot. In the meanwhile, it does improve the
-accuracy but slightly.
+### How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy
 
+The decision boundary generated from original features is a linear function, 
+while the present decision boundary in the shape ofexponential function plot. 
+In the meanwhile, it does improve the accuracy but slightly.
 ```{r echo=FALSE}
-cat("The accuracy of present model:", acc_model2, "\n")
-cat("The accuracy of previous model: ", acc_model1, "\n")
+cat("The accuracy of the present model:", acc_model2, "\n")
+cat("The accuracy of the previous model: ", acc_model1, "\n")
 ```
 
 # Assignment 4. Theory
@@ -705,6 +740,16 @@ negative class than to falsely to predict the positive class in a
 medical diagnosis application.Besides, the medical problem could be
 imbalanced if the disorder is very rare. Adjusting the threshold r is
 essential to achieve performance based on different context(page 47-48).
+
+## Methods of collecting correct values of the labels for the supervised learning problems.
+
+The vaules of label can be:
+
+manually assigned by domain experts or possiblysome auxiliary examination
+
+calculated via specialised experiments and theories
+
+obtained from the historical records(page 4-6)
 
 ## Express the cost fucntion of the linear regression in the matrix form.
 
@@ -728,7 +773,6 @@ This cost function is also referred to as the least squares cost. (page
 # Appendix
 
 ## Code for assignment 1
-
 ```{r, echo=TRUE, eval=FALSE}
 library(kknn)
 data <- read.csv("LAB1data/optdigits.csv", header = TRUE)  
