@@ -6,6 +6,11 @@ output:
   bookdown::pdf_document2:
     number_sections: true
     latex_engine: xelatex
+header-includes:
+  - \usepackage{float}
+editor_options: 
+  markdown: 
+    wrap: 72
 
 ---
 
@@ -142,15 +147,21 @@ first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ## Comment on the quality of predictions for different digits and on the overall prediction quality
 
-According to the test confusion matrix and misclassification rate (see Figure \@ref(fig:cm) and \@ref(fig:mr)), the model performs best on number "0", but there is a high rate on number "5","8",and "9".
+According to the test confusion matrix and misclassification rate (see
+Figure \@ref(fig:cm) and \@ref(fig:mr)), the model performs best on
+number "0", but there is a high rate on number "5","8",and "9".
 
-The overall misclassification rates of training data and test data are 0.04238619 and 0.05857741, which is acceptable.
+The overall misclassification rates of training data and test data are
+0.04238619 and 0.05857741, which is acceptable.
 
-Overall Performance: The model performs well with low misclassification rates and generalizes effectively across training and test sets.
+Overall Performance: The model performs well with low misclassification
+rates and generalizes effectively across training and test sets.
 
 ## cases of digit “8”
 
-Accroding to Figure \@ref(fig:easy), index 209 is the easiest one to be recognized, and in Figure \@ref(fig:hard), index 1663 can barely make out the shape of eight.
+Accroding to Figure \@ref(fig:easy), index 209 is the easiest one to be
+recognized, and in Figure \@ref(fig:hard), index 1663 can barely make
+out the shape of eight.
 
 ## Fit a K-nearest neighbor classifiers with misclassification errors
 
@@ -179,13 +190,16 @@ cat("the training error is:", train_errors[3],"\n")
 cat("the validation error is:", valid_errors[3],"\n")
 ```
 
-The classification error rate of the model on training, verification and test sets is low, and the difference is not large, indicating that the model has consistent performance on different data sets.
+The classification error rate of the model on training, verification and
+test sets is low, and the difference is not large, indicating that the
+model has consistent performance on different data sets.
 
 ## Fit K-nearest neighbor classifiers with cross-entropy
 
 ```{r echo=FALSE}
 cat("the optimal value of K is:",first_stable_k,"\n" )
 ```
+
 \begin{figure}[h]
   \begin{minipage}{0.4\textwidth}
     1.For multiple classification problems, cross entropy can reflect the degree of confidence of the model in predicting the correct category.
@@ -198,7 +212,6 @@ cat("the optimal value of K is:",first_stable_k,"\n" )
   \end{minipage}
   \caption{A.1.2: Validation Cross Entropy}
 \end{figure}
-
 
 ```{r include=FALSE}
 data = read.csv("LAB1data/pima-indians-diabetes.csv")
@@ -498,17 +511,25 @@ cat("Test data MSE when lambda=1000:",MSE_1000_test,"\n")
 cat("Degree of freedom when lambda=1000:",df_1000,"\n")
 ```
 
-## Compute a linear regression fromm the training data
+## Compute a linear regression from the training data
 
-Using `lm()`to fit a linear regression model without intercept, we got the summary of the model as follows: 
+\begin{figure}[H]
+  \begin{minipage}{0.4\textwidth}
+    Using `lm()`to fit a linear regression model without intercept, we got the summary of the model as follows:
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=0.8\textwidth]{./LAB1figure/sum.png}
+  \end{minipage}
+  \caption{A.2.1: Summary}
+\end{figure}
 
-```{r echo=FALSE}
-summary(fit)
-```
+
 
 ## Estimate traing and test MSE
 
 The MSE for training and test data show as follows:
+
 ```{r echo=FALSE}
 cat("MSE for the training data is :",MSE_trainning,"\n")
 cat("MSE for the test data is :",MSE_test,"\n")
@@ -516,13 +537,19 @@ cat("MSE for the test data is :",MSE_test,"\n")
 
 ## Commenting on Significant Variable Contributions to the Model
 
-The coefficient`Jitter.Abs.`,`Shimmer.APQ5`,`Shimmer.APQ11`,`NHR`,`HNR`,`DFA`,`PPE`
-is highly significant, as their P-value are less than 0.001,which suggests that they have a strong and statistically reliable impact on the response variable.
-The coefficient  `Shimmer` is statistically significant,with a P-value < 0.01,indicating that `Shimmer` has a meaningful and reliable impact on the response variable.
+The
+coefficient`Jitter.Abs.`,`Shimmer.APQ5`,`Shimmer.APQ11`,`NHR`,`HNR`,`DFA`,`PPE`
+is highly significant, as their P-value are less than 0.001,which
+suggests that they have a strong and statistically reliable impact on
+the response variable. The coefficient `Shimmer` is statistically
+significant,with a P-value \< 0.01,indicating that `Shimmer` has a
+meaningful and reliable impact on the response variable.
 
 ## Using `RidgeOpt`to compute optimal parameters when lambda=1, 100 and 1000
 
-The training and test MSE for different lambda and the degrees of freedom shows as follws:
+The training and test MSE for different lambda and the degrees of
+freedom shows as follws:
+
 ```{r echo=FALSE}
 result1 <- RidgeOpt(1, X_train, Y_train)
 theta1 <- result1$theta
@@ -568,39 +595,57 @@ cat("\n")
 
 ## Comenting on which is the most appropriate penalty parameter
 
-Among the selected penalty parameters, lambda = 100 is the most appropriate .It provides the lowest test data MSE(0.9323316). Besides, the degree of freedom for lambda = 100 is 9.924887, which shows a balanced model complexity that avoids both overfitting and underfitting.
+Among the selected penalty parameters, lambda = 100 is the most
+appropriate .It provides the lowest test data MSE(0.9323316). Besides,
+the degree of freedom for lambda = 100 is 9.924887, which shows a
+balanced model complexity that avoids both overfitting and underfitting.
 
 # Assignment 3
 
-## Make a scatterplot showing a Plasma glucose concentration on Age where observations are colored by Diabetes levels. Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features?  
-The plot is shown in Figure \@ref(fig:rd).
-From the scatter plot between the given 2 features, that there is no any apparent boundary to classify the green points and red points representing whether being healthy or having diabetes. Based on that, I think it is not easy. 
+## Make a scatterplot showing a Plasma glucose concentration on Age where observations are colored by Diabetes levels. Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features?
+
+The plot is shown in Figure \@ref(fig:rd). From the scatter plot between
+the given 2 features, that there is no any apparent boundary to classify
+the green points and red points representing whether being healthy or
+having diabetes. Based on that, I think it is not easy.
 
 ## Report the probabilistic equation of the estimated model (i.e., how the target depends on the features and the estimated model parameters probabilistically). Comment on the quality of the classification by using these results. Make the scatter plot.
+
 The equation is: $$
 P(y|X,\beta) = \sigma(X\beta) = \frac{1}{1+exp(-X\beta)}
-$$ where $\sigma$() represents the sigmod function, $X$ is input data, $\beta$ is coefficients, and $y$ is predicted output.
+$$ where $\sigma$() represents the sigmod function, $X$ is input data,
+$\beta$ is coefficients, and $y$ is predicted output.
 
-Based on accuracy of the prediction, besides the comparison between plots, it is obvious that the quality is not good enough to classify them well.
+Based on accuracy of the prediction, besides the comparison between
+plots, it is obvious that the quality is not good enough to classify
+them well.
+
 ```{r echo=FALSE}
 result_1 <- paste("The accuracy can be considered as quality of classification:", acc_model1)
 print(result_1)
 result_2 <- paste("Misclassification error is:", loss_model1)
 print(result_2)
 ```
-The plot is shown in Figure \@ref(fig:po). 
+
+The plot is shown in Figure \@ref(fig:po).
 
 ## Use the model estimated in step 2 to a) report the equation of the decision boundary between the two classes b) add a curve showing this boundary to the scatter plot in step 2. Comment whether the decision boundary seems to catch the data distribution well.
+
 The plot with the curve is shown in Figure \@ref(fig:db).
+
 ```{r echo=FALSE}
 cat("Decision Boundary:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = y bar")
 ```
 
-The decision boundary is represented by a linear function, while the data distribution is more complicated than the data which can be caught by linear function. 
+The decision boundary is represented by a linear function, while the
+data distribution is more complicated than the data which can be caught
+by linear function.
 
-## Make same kind of plots as in step 2 but use thresholds r=0.2 and r=0.8. By using these plots, comment on what happens with the prediction when r value changes. 
-The plot with threhold = 0.2 and threhold = 0.8 are shown in Figure \@ref(fig:th2) and Figure \@ref(fig:th8), repectively.
-With the increasing value of r, less sample would be predicted as positive. 
+## Make same kind of plots as in step 2 but use thresholds r=0.2 and r=0.8. By using these plots, comment on what happens with the prediction when r value changes.
+
+The plot with threhold = 0.2 and threhold = 0.8 are shown in Figure
+\@ref(fig:th2) and Figure \@ref(fig:th8), repectively. With the
+increasing value of r, less sample would be predicted as positive.
 
 ```{r eval=FALSE, include=FALSE}
 label = model_data$label
@@ -621,18 +666,28 @@ output_label  = ifelse(output_prob >= 0.5, 1, 0)
 loss_model2 = mean((as.numeric(output_label) - as.numeric(model_data$label)) ** 2)
 acc_model2 = mean(output_label == model_data$label)
 ```
-## Create a scatterplot of the same kind as in step 2 for this model and compute the training misclassification rate. What can you say about the quality of this model compared to the previous logistic regression model?  How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy?
+
+## Create a scatterplot of the same kind as in step 2 for this model and compute the training misclassification rate. What can you say about the quality of this model compared to the previous logistic regression model? How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy?
+
 The plot is shown in Figure \@ref(fig:po2)
+
 ```{r echo=FALSE}
 cat("The misclassification error of present model is:", loss_model2, "\n")
 ```
-After adding the non-linear elements into feature, the performance improved a little, but either cannot classify well.
+
+After adding the non-linear elements into feature, the performance
+improved a little, but either cannot classify well.
+
 ```{r echo=FALSE}
 
 cat("The misclassification error of present model is:", loss_model2, "\n")
 cat("The misclassification error of previous model is:", loss_model1, "\n")
 ```
-The decision boundary generated from original features is a linear function, while the present decision boundary in the shape of exponential function plot. In the meanwhile, it does improve the accuracy but slightly.
+
+The decision boundary generated from original features is a linear
+function, while the present decision boundary in the shape of
+exponential function plot. In the meanwhile, it does improve the
+accuracy but slightly.
 
 ```{r echo=FALSE}
 cat("The accuracy of present model:", acc_model2, "\n")
@@ -643,28 +698,32 @@ cat("The accuracy of previous model: ", acc_model1, "\n")
 
 ## Importance to consider various probability thresholds in classification problems.
 
-In classification problems, r=0.5 may not always the most important aspect of classifier. Many classification problems are asymmetric or imbalanced. For example, it can be important not to falsely predict the negative class than to falsely to predict the positive class in a medical diagnosis application.Besides, the medical problem could be imbalanced if the disorder is very rare. Adjusting the threshold r is essential to achieve performance based on different context(page 47-48).
+In classification problems, r=0.5 may not always the most important
+aspect of classifier. Many classification problems are asymmetric or
+imbalanced. For example, it can be important not to falsely predict the
+negative class than to falsely to predict the positive class in a
+medical diagnosis application.Besides, the medical problem could be
+imbalanced if the disorder is very rare. Adjusting the threshold r is
+essential to achieve performance based on different context(page 47-48).
 
 ## Express the cost fucntion of the linear regression in the matrix form.
 
-The cost function for the linear regression in the matrix form is defined as:
-$$
+The cost function for the linear regression in the matrix form is
+defined as: $$
 J(\theta) = \frac{1}{n} \sum_{i=1}^{n} \left( \hat{y}(x_i; \theta) - y_i \right)^2
 = \frac{1}{n} \| \hat{y} - y \|_2^2
 = \frac{1}{n} \| X \theta - y \|_2^2
 = \frac{1}{n} \| \epsilon \|_2^2
-$$
-where:
- $\hat{y} = X \theta$ is the vector of the predicted values
- 
- $y$ is the vector of true values
- 
- $\epsilon = y - \hat{y}$ is the residuals
- 
- $\|\cdot \|$ denotes the Euclidean norm
- 
-This cost function is also referred to as the least squares cost.
-(page 40,formula(3.11))
+$$ where: $\hat{y} = X \theta$ is the vector of the predicted values
+
+$y$ is the vector of true values
+
+$\epsilon = y - \hat{y}$ is the residuals
+
+$\|\cdot \|$ denotes the Euclidean norm
+
+This cost function is also referred to as the least squares cost. (page
+40,formula(3.11))
 
 # Appendix
 
@@ -966,7 +1025,6 @@ cat("Training data MSE when lambda=1000:",MSE_1000_trian,"\n")
 cat("Test data MSE when lambda=1000:",MSE_1000_test,"\n")
 cat("Degree of freedom when lambda=1000:",df_1000,"\n")
 ```
-
 
 ## Code for assignment 3
 
