@@ -15,6 +15,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r include=FALSE}
 library(kknn)
+library(gridExtra)
+library(grid)
+library(png)
+
 data <- read.csv("LAB1data/optdigits.csv", header = TRUE)  
 data$X0.26 <- as.factor(data$X0.26)
 n <- nrow(data)
@@ -136,7 +140,7 @@ first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 # Assignment 1
 
-## Comment on the quality of predictions for different digits and on the overall prediction quality.
+## Comment on the quality of predictions for different digits and on the overall prediction quality
 
 According to the test confusion matrix and misclassification rate (see Figure \@ref(fig:cm) and \@ref(fig:mr)), the model performs best on number "0", but there is a high rate on number "5","8",and "9".
 
@@ -146,7 +150,7 @@ Overall Performance: The model performs well with low misclassification rates an
 
 ## cases of digit “8”
 
-Index 209 is the easiest one to be recognized. Index 1663 can barely make out the shape of eight.
+Accroding to Figure \@ref(fig:easy), index 209 is the easiest one to be recognized, and in Figure \@ref(fig:hard), index 1663 can barely make out the shape of eight.
 
 ## Fit a K-nearest neighbor classifiers with misclassification errors
 
@@ -154,9 +158,18 @@ Index 209 is the easiest one to be recognized. Index 1663 can barely make out th
 cat("the optimal value of K is:",optimal_K,"\n" )
 ```
 
-1.As the value of K increases, the model becomes less sensitive, i.e. the model complexity decreases. Smaller K values result in a more complex model (sensitive to noise), while larger K values make the model smoother (potentially resulting in underfitting).
+\begin{figure}[h]
+  \begin{minipage}{0.4\textwidth}
+    1.As the value of K increases, the model becomes less sensitive, i.e. the model complexity decreases. Smaller K values result in a more complex model (sensitive to noise), while larger K values make the model smoother (potentially resulting in underfitting).
 
 2.The training error rate curve increases with the increase of K. With the increase of K, the validation error rate curve first decreases, reaches a lowest point (the best value k), and then may slightly increase or become stable.
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=\textwidth]{./LAB1figure/000014.png}
+  \end{minipage}
+  \caption{A.1.1: Misclassification Error}
+\end{figure}
 
 ### test error compared with training and valid error
 
@@ -173,10 +186,19 @@ The classification error rate of the model on training, verification and test se
 ```{r echo=FALSE}
 cat("the optimal value of K is:",first_stable_k,"\n" )
 ```
+\begin{figure}[h]
+  \begin{minipage}{0.4\textwidth}
+    1.For multiple classification problems, cross entropy can reflect the degree of confidence of the model in predicting the correct category.
 
-For multiple classification problems, cross entropy can reflect the degree of confidence of the model in predicting the correct category.
+2.The misclassification rate only considers correct or incorrect classifications, but the cross-entropy is more sensitive to the probabilistic output of the model and therefore reflects the performance of the model in more detail. If a model misclassifies, but the probability of prediction is very close to the correct answer, the increase in cross entropy loss will be smaller than the misclassification rate, reflecting a more nuanced error situation.
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=\textwidth]{./LAB1figure/000010.png}
+  \end{minipage}
+  \caption{A.1.2: Validation Cross Entropy}
+\end{figure}
 
-The misclassification rate only considers correct or incorrect classifications, but the cross-entropy is more sensitive to the probabilistic output of the model and therefore reflects the performance of the model in more detail. If a model misclassifies, but the probability of prediction is very close to the correct answer, the increase in cross entropy loss will be smaller than the misclassification rate, reflecting a more nuanced error situation.
 
 ```{r include=FALSE}
 data = read.csv("LAB1data/pima-indians-diabetes.csv")
@@ -302,6 +324,252 @@ ggplot() +
   theme_minimal()
 ```
 
+# Assignment 2
+
+```{r include=FALSE}
+parkinsons <- read.csv("LAB1data/parkinsons.csv",header=TRUE)
+
+parkinsons <- parkinsons[,!names(parkinsons)%in%c("subject.","age","sex","test_time","total_UPDRS")]
+
+library(caret)
+#data scaling
+set.seed(12345)
+n <- nrow(parkinsons)
+id <- sample(1:n,floor(n*0.6))
+train <- parkinsons[id,]
+test <- parkinsons[-id,]
+
+scaler <- preProcess(train)    
+trainS <- predict(scaler,train)
+testS <- predict(scaler,test)
+
+#fit the model 
+fit <- lm(motor_UPDRS~.-1,data=trainS)
+summary(fit)
+
+#using model to predict training and test data
+
+predictions_train <- predict(fit,newdata=trainS)
+
+predictions_test <- predict(fit, newdata = testS)
+
+#compute MSE for trainning and test data
+MSE_trainning <- mean((trainS$motor_UPDRS-predictions_train)^2)
+MSE_test <- mean((testS$motor_UPDRS-predictions_test)^2)
+cat("MSE for the training data is :",MSE_trainning,"\n")
+cat("MSE for the test data is :",MSE_test,"\n")
+
+
+#The coefficient`Jitter.Abs.`,`Shimmer.APQ5`,`Shimmer.APQ11`,`NHR`,`HNR`,`DFA`,`PPE`
+#is highly significant, as their P-value < 0.001,which suggests that they have a strong 
+#and statistically reliable impact on the response variable.
+
+#The coefficient for `Shimmer.dB.` is statistically significant, as its P-value < 0.01. 
+#This suggests that `Shimmer.dB.` has a meaningful and reliable impact on the response variable.
+
+
+#log_likelihood
+Loglikelihood <- function(theta,sigma,X,Y){
+  n <- length(Y)
+  predicted_Y <- X%*%theta
+  squared_error <- (Y-predicted_Y)^2
+  log_likelihood <- -0.5*n*log(2*pi*sigma^2)-0.5/sigma^2*sum(squared_error)
+  return(log_likelihood)
+}
+
+#compute the loglikelihood for the fitting model
+
+ #extract theta
+theta <- coef(fit)
+
+
+ #extract sigma
+residual_train <- trainS$motor_UPDRS-predictions_train
+sigma <- sqrt(mean(residual_train^2)) 
+
+ #extract X as feature matrix for the training data
+X_train <- as.matrix(trainS[,-1])
+ #extract Y
+Y_train <- as.numeric(trainS$motor_UPDRS)
+
+ #compute loglikelihood for the training data
+Loglikelihood(theta,sigma,X_train,Y_train)
+
+#Ridge 
+Ridge <- function(theta,sigma,lambda,X,Y){
+  penalty <- lambda*sum(theta^2) #penalty 
+  loglikelihood <- Loglikelihood(theta,sigma,X,Y)
+  ridge_loglikelihood <- -loglikelihood+penalty 
+  return(ridge_loglikelihood)
+}
+
+#RidgeOpt
+
+RidgeOpt <- function(lambda,X,Y){
+  
+  #object function
+  objfun <- function(params){
+    #extract theta and sigma
+    theta <- params[1:ncol(X)]
+    sigma <- params[ncol(X)+1]
+    #ensure sigma is non-negative
+    if(sigma<=0)
+      return(Inf)
+    
+    #compute ridge-loglikelihood
+    RidgeLikelihood <- Ridge(theta,sigma,lambda,X,Y)
+    return(RidgeLikelihood) 
+  }
+  #initialize theta and sigma
+  initialized_theta <- rep(0,ncol(X)) #theta to be 0
+  initialized_sigma <- sd(Y)    
+  
+  #combine theta with sigma
+  initialized_params <- c(initialized_theta,initialized_sigma)
+  
+  #using optim function to optimize
+  result <- optim(par=initialized_params,
+                  fn=objfun,
+                  method = "BFGS",
+                  control = list(maxit=1000))
+   if(result$convergence!=0){
+     warning("Optimization did not converge.")
+   }                
+  optimezed_params <- result$par
+  return(list(theta=optimezed_params[1:ncol(X)],
+              sigma=optimezed_params[ncol(X)+1],
+              value=-result$value, 
+              convergence=result$convergence)) 
+  
+}
+
+#degree of freedom
+
+DF <- function(lambda,X){
+  XtX <- t(X)%*%X                              #t(X)*x
+  XtX_lambda <- XtX+lambda*diag(ncol(X))       #t(X)*x+lambda*I
+  Hat_matrix <- X%*%solve(XtX_lambda)%*%t(X)
+  df <- sum(diag(Hat_matrix))                           #trace of the hat matrix
+  return(df)
+}
+
+X_test <- as.matrix(testS[,-1])
+Y_test <- as.numeric(testS$motor_UPDRS)
+
+#result and predicted values for training and testing data  and MSE value
+#lambda=1
+result1 <- RidgeOpt(1, X_train, Y_train)
+theta1 <- result1$theta
+sigma <- result1$sigma
+predicted_1_Y_train <- X_train%*%theta1
+predicted_1_Y_test <- X_test%*%theta1
+MSE_1_trian <- mean((Y_train-predicted_1_Y_train)^2)
+MSE_1_test <- mean((Y_test-predicted_1_Y_test)^2)
+df_1 <- DF(1,X_train)
+cat("Training data MSE when lambda=1:",MSE_1_trian,"\n")
+cat("Test data MSE when lambda=1:",MSE_1_test,"\n")
+cat("Degree of freedom when lambda=1:",df_1,"\n")
+
+
+#lambda=100
+result2 <- RidgeOpt(100, X_train, Y_train)
+theta2 <- result2$theta
+sigma2 <- result2$sigma
+predicted_100_Y_train <- X_train%*%theta2
+predicted_100_Y_test <- X_test%*%theta2
+MSE_100_trian <- mean((Y_train-predicted_100_Y_train)^2)
+MSE_100_test <- mean((Y_test-predicted_100_Y_test)^2)
+df_100 <- DF(100,X_train)
+cat("Training data MSE when lambda=100:",MSE_100_trian,"\n")
+cat("Test data MSE when lambda=100:",MSE_100_test,"\n")
+cat("Degree of freedom when lambda=100:",df_100,"\n")
+
+#lambda=1000
+result3 <- RidgeOpt(1000, X_train, Y_train)
+theta3 <- result3$theta
+sigma3 <- result3$sigma
+predicted_1000_Y_train <- X_train%*%theta3
+predicted_1000_Y_test <- X_test%*%theta3
+MSE_1000_trian <- mean((Y_train-predicted_1000_Y_train)^2)
+MSE_1000_test <- mean((Y_test-predicted_1000_Y_test)^2)
+df_1000 <- DF(1000,X_train)
+cat("Training data MSE when lambda=1000:",MSE_1000_trian,"\n")
+cat("Test data MSE when lambda=1000:",MSE_1000_test,"\n")
+cat("Degree of freedom when lambda=1000:",df_1000,"\n")
+```
+
+## Compute a linear regression fromm the training data
+
+Using `lm()`to fit a linear regression model without intercept, we got the summary of the model as follows: 
+
+```{r echo=FALSE}
+summary(fit)
+```
+
+## Estimate traing and test MSE
+
+The MSE for training and test data show as follows:
+```{r echo=FALSE}
+cat("MSE for the training data is :",MSE_trainning,"\n")
+cat("MSE for the test data is :",MSE_test,"\n")
+```
+
+## Commenting on Significant Variable Contributions to the Model
+
+The coefficient`Jitter.Abs.`,`Shimmer.APQ5`,`Shimmer.APQ11`,`NHR`,`HNR`,`DFA`,`PPE`
+is highly significant, as their P-value are less than 0.001,which suggests that they have a strong and statistically reliable impact on the response variable.
+The coefficient  `Shimmer` is statistically significant,with a P-value < 0.01,indicating that `Shimmer` has a meaningful and reliable impact on the response variable.
+
+## Using `RidgeOpt`to compute optimal parameters when lambda=1, 100 and 1000
+
+The training and test MSE for different lambda and the degrees of freedom shows as follws:
+```{r echo=FALSE}
+result1 <- RidgeOpt(1, X_train, Y_train)
+theta1 <- result1$theta
+sigma <- result1$sigma
+predicted_1_Y_train <- X_train%*%theta1
+predicted_1_Y_test <- X_test%*%theta1
+MSE_1_trian <- mean((Y_train-predicted_1_Y_train)^2)
+MSE_1_test <- mean((Y_test-predicted_1_Y_test)^2)
+df_1 <- DF(1,X_train)
+cat("Training data MSE when lambda = 1 :",MSE_1_trian,"\n")
+cat("Test data MSE when lambda =1 :",MSE_1_test,"\n")
+cat("Degree of freedom when lambda = 1:",df_1,"\n")
+cat("\n")
+
+#lambda=100
+result2 <- RidgeOpt(100, X_train, Y_train)
+theta2 <- result2$theta
+sigma2 <- result2$sigma
+predicted_100_Y_train <- X_train%*%theta2
+predicted_100_Y_test <- X_test%*%theta2
+MSE_100_trian <- mean((Y_train-predicted_100_Y_train)^2)
+MSE_100_test <- mean((Y_test-predicted_100_Y_test)^2)
+df_100 <- DF(100,X_train)
+cat("Training data MSE when lambda = 100 :",MSE_100_trian,"\n")
+cat("Test data MSE when lambda = 100 :",MSE_100_test,"\n")
+cat("Degree of freedom when lambda = 100 :",df_100,"\n")
+cat("\n")
+
+#lambda=1000
+result3 <- RidgeOpt(1000, X_train, Y_train)
+theta3 <- result3$theta
+sigma3 <- result3$sigma
+predicted_1000_Y_train <- X_train%*%theta3
+predicted_1000_Y_test <- X_test%*%theta3
+MSE_1000_trian <- mean((Y_train-predicted_1000_Y_train)^2)
+MSE_1000_test <- mean((Y_test-predicted_1000_Y_test)^2)
+df_1000 <- DF(1000,X_train)
+cat("Training data MSE when lambda = 1000 :",MSE_1000_trian,"\n")
+cat("Test data MSE when lambda = 1000 :",MSE_1000_test,"\n")
+cat("Degree of freedom when lambda = 1000 :",df_1000,"\n")
+cat("\n")
+```
+
+## Comenting on which is the most appropriate penalty parameter
+
+Among the selected penalty parameters, lambda = 100 is the most appropriate .It provides the lowest test data MSE(0.9323316). Besides, the degree of freedom for lambda = 100 is 9.924887, which shows a balanced model complexity that avoids both overfitting and underfitting.
+
 # Assignment 3
 
 ## Make a scatterplot showing a Plasma glucose concentration on Age where observations are colored by Diabetes levels. Do you think that Diabetes is easy to classify by a standard logistic regression model that uses these two variables as features?  
@@ -370,6 +638,33 @@ The decision boundary generated from original features is a linear function, whi
 cat("The accuracy of present model:", acc_model2, "\n")
 cat("The accuracy of previous model: ", acc_model1, "\n")
 ```
+
+# Assignment 4. Theory
+
+## Importance to consider various probability thresholds in classification problems.
+
+In classification problems, r=0.5 may not always the most important aspect of classifier. Many classification problems are asymmetric or imbalanced. For example, it can be important not to falsely predict the negative class than to falsely to predict the positive class in a medical diagnosis application.Besides, the medical problem could be imbalanced if the disorder is very rare. Adjusting the threshold r is essential to achieve performance based on different context(page 47-48).
+
+## Express the cost fucntion of the linear regression in the matrix form.
+
+The cost function for the linear regression in the matrix form is defined as:
+$$
+J(\theta) = \frac{1}{n} \sum_{i=1}^{n} \left( \hat{y}(x_i; \theta) - y_i \right)^2
+= \frac{1}{n} \| \hat{y} - y \|_2^2
+= \frac{1}{n} \| X \theta - y \|_2^2
+= \frac{1}{n} \| \epsilon \|_2^2
+$$
+where:
+ $\hat{y} = X \theta$ is the vector of the predicted values
+ 
+ $y$ is the vector of true values
+ 
+ $\epsilon = y - \hat{y}$ is the residuals
+ 
+ $\|\cdot \|$ denotes the Euclidean norm
+ 
+This cost function is also referred to as the least squares cost.
+(page 40,formula(3.11))
 
 # Appendix
 
@@ -496,6 +791,182 @@ first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 
 ```
+
+## Code for assignment 2
+
+```{r, echo=TRUE, eval=FALSE}
+parkinsons <-  read.csv("LAB1data/parkinsons.csv",header=TRUE)
+
+parkinsons <- parkinsons[,!names(parkinsons)%in%c("subject.","age","sex","test_time","total_UPDRS")]
+
+library(caret)
+#data scaling
+set.seed(12345)
+n <- nrow(parkinsons)
+id <- sample(1:n,floor(n*0.6))
+train <- parkinsons[id,]
+test <- parkinsons[-id,]
+
+library(caret)
+scaler <- preProcess(train)    
+trainS <- predict(scaler,train)
+testS <- predict(scaler,test)
+
+#fit the model 
+fit <- lm(motor_UPDRS~.-1,data=trainS)
+summary(fit)
+
+#using model to predict training and test data
+
+predictions_train <- predict(fit,newdata=trainS)
+
+predictions_test <- predict(fit, newdata = testS)
+
+#compute MSE for trainning and test data
+MSE_trainning <- mean((trainS$motor_UPDRS-predictions_train)^2)
+MSE_test <- mean((testS$motor_UPDRS-predictions_test)^2)
+cat("MSE for the training data is :",MSE_trainning,"\n")
+cat("MSE for the test data is :",MSE_test,"\n")
+
+
+#The coefficient`Jitter.Abs.`,`Shimmer.APQ5`,`Shimmer.APQ11`,`NHR`,`HNR`,`DFA`,`PPE`
+#is highly significant, as their P-value < 0.001,which suggests that they have a strong 
+#and statistically reliable impact on the response variable.
+
+#The coefficient for `Shimmer.dB.` is statistically significant, as its P-value < 0.01. 
+#This suggests that `Shimmer.dB.` has a meaningful and reliable impact on the response variable.
+
+
+#log_likelihood
+Loglikelihood <- function(theta,sigma,X,Y){
+  n <- length(Y)
+  predicted_Y <- X%*%theta
+  squared_error <- (Y-predicted_Y)^2
+  log_likelihood <- -0.5*n*log(2*pi*sigma^2)-0.5/sigma^2*sum(squared_error)
+  return(log_likelihood)
+}
+
+#compute the loglikelihood for the fitting model
+
+ #extract theta
+theta <- coef(fit)
+length(theta)
+
+ #extract sigma
+residual_train <- trainS$motor_UPDRS-predictions_train
+sigma <- sqrt(mean(residual_train^2)) 
+
+ #extract X as feature matrix for the training data
+X_train <- as.matrix(trainS[,-1])
+ #extract Y
+Y_train <- as.numeric(trainS$motor_UPDRS)
+
+ #compute loglikelihood for the training data
+Loglikelihood(theta,sigma,X_train,Y_train)
+predictions_train
+#Ridge 
+Ridge <- function(theta,sigma,lambda,X,Y){
+  penalty <- lambda*sum(theta^2) #penalty 
+  loglikelihood <- Loglikelihood(theta,sigma,X,Y)
+  ridge_loglikelihood <- -loglikelihood+penalty 
+  return(ridge_loglikelihood)
+}
+
+#RidgeOpt
+
+RidgeOpt <- function(lambda,X,Y){
+  
+  #object function
+  objfun <- function(params){
+    #extract theta and sigma
+    theta <- params[1:ncol(X)]
+    sigma <- params[ncol(X)+1]
+    #ensure sigma is non-negative
+    if(sigma<=0)
+      return(Inf)
+    
+    #compute ridge-loglikelihood
+    RidgeLikelihood <- Ridge(theta,sigma,lambda,X,Y)
+    return(RidgeLikelihood) 
+  }
+  #initialize theta and sigma
+  initialized_theta <- rep(0,ncol(X)) #theta to be 0
+  initialized_sigma <- sd(Y)    
+  
+  #combine theta with sigma
+  initialized_params <- c(initialized_theta,initialized_sigma)
+  
+  #using optim function to optimize
+  result <- optim(par=initialized_params,
+                  fn=objfun,
+                  method = "BFGS",
+                  control = list(maxit=1000))
+   if(result$convergence!=0){
+     warning("Optimization did not converge.")
+   }                
+  optimezed_params <- result$par
+  return(list(theta=optimezed_params[1:ncol(X)],
+              sigma=optimezed_params[ncol(X)+1],
+              value=-result$value, 
+              convergence=result$convergence)) 
+  
+}
+
+#degree of freedom
+
+DF <- function(lambda,X){
+  XtX <- t(X)%*%X                              #t(X)*x
+  XtX_lambda <- XtX+lambda*diag(ncol(X))       #t(X)*x+lambda*I
+  Hat_matrix <- X%*%solve(XtX_lambda)%*%t(X)
+  df <- sum(diag(Hat_matrix))                           #trace of the hat matrix
+  return(df)
+}
+
+X_test <- as.matrix(testS[,-1])
+Y_test <- as.numeric(testS$motor_UPDRS)
+
+#result and predicted values for training and testing data  and MSE value
+#lambda=1
+result1 <- RidgeOpt(1, X_train, Y_train)
+theta1 <- result1$theta
+sigma <- result1$sigma
+predicted_1_Y_train <- X_train%*%theta1
+predicted_1_Y_test <- X_test%*%theta1
+MSE_1_trian <- mean((Y_train-predicted_1_Y_train)^2)
+MSE_1_test <- mean((Y_test-predicted_1_Y_test)^2)
+df_1 <- DF(1,X_train)
+cat("Training data MSE when lambda=1:",MSE_1_trian,"\n")
+cat("Test data MSE when lambda=1:",MSE_1_test,"\n")
+cat("Degree of freedom when lambda=1:",df_1,"\n")
+
+
+#lambda=100
+result2 <- RidgeOpt(100, X_train, Y_train)
+theta2 <- result2$theta
+sigma2 <- result2$sigma
+predicted_100_Y_train <- X_train%*%theta2
+predicted_100_Y_test <- X_test%*%theta2
+MSE_100_trian <- mean((Y_train-predicted_100_Y_train)^2)
+MSE_100_test <- mean((Y_test-predicted_100_Y_test)^2)
+df_100 <- DF(100,X_train)
+cat("Training data MSE when lambda=100:",MSE_100_trian,"\n")
+cat("Test data MSE when lambda=100:",MSE_100_test,"\n")
+cat("Degree of freedom when lambda=100:",df_100,"\n")
+
+#lambda=1000
+result3 <- RidgeOpt(1000, X_train, Y_train)
+theta3 <- result3$theta
+sigma3 <- result3$sigma
+predicted_1000_Y_train <- X_train%*%theta3
+predicted_1000_Y_test <- X_test%*%theta3
+MSE_1000_trian <- mean((Y_train-predicted_1000_Y_train)^2)
+MSE_1000_test <- mean((Y_test-predicted_1000_Y_test)^2)
+df_1000 <- DF(1000,X_train)
+cat("Training data MSE when lambda=1000:",MSE_1000_trian,"\n")
+cat("Test data MSE when lambda=1000:",MSE_1000_test,"\n")
+cat("Degree of freedom when lambda=1000:",df_1000,"\n")
+```
+
 
 ## Code for assignment 3
 
@@ -624,37 +1095,27 @@ ggplot() +
 
 ```
 
-## Figure for assignment 1
+## Figures
 
-```{r echo=FALSE, fig.cap="A.1.1: Test Confusion Matrix",label="cm", out.width="80%"}
+```{r echo=FALSE, fig.cap="A.1.3: Test Confusion Matrix",label="cm", out.width="80%"}
 library(knitr)
 include_graphics("./LAB1figure/cm.png")
 ```
 
-```{r echo=FALSE, fig.cap="A.1.2: Misclassification Rate",label="mr", out.width="80%"}
+```{r echo=FALSE, fig.cap="A.1.4: Misclassification Rate",label="mr", out.width="80%"}
 include_graphics("./LAB1figure/rate.png")
 ```
 
-```{r echo=FALSE, fig.cap="A.1.3: Heatmap of Digit 8\\_easiest", fig.show='hold', out.width="50%"}
+```{r echo=FALSE, fig.cap="A.1.5: Heatmap of Digit 8\\_easiest",label="easy", fig.show='hold', out.width="50%"}
 include_graphics(c("./LAB1figure/map1.png", 
                    "./LAB1figure/map11.png"))
 ```
 
-```{r echo=FALSE, fig.cap="A.1.4: Heatmap of Digit 8\\_hardest", fig.show='hold', out.width="33%"}
+```{r echo=FALSE, fig.cap="A.1.6: Heatmap of Digit 8\\_hardest",label="hard", fig.show='hold', out.width="33%"}
 include_graphics(c("./LAB1figure/map2.png", 
                    "./LAB1figure/map22.png",
                    "./LAB1figure/map23.png"))
 ```
-
-```{r echo=FALSE, fig.cap="A.1.5: Misclassification Error", out.width="80%"}
-include_graphics("./LAB1figure/000014.png")
-```
-
-```{r echo=FALSE, fig.cap="A.1.6: Validation Cross Entropy", out.width="80%"}
-include_graphics("./LAB1figure/000010.png")
-```
-
-## Figures for assignment 3
 
 ```{r echo=FALSE, fig.cap="A.3.1: Raw Data Distribution", out.width="80%", label="rd"}
 library(knitr)
