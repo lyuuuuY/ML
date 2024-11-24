@@ -1,9 +1,6 @@
 ---
 title: "report_lab1"
-author: |
-  Yanjie Lyu  
-  Yi Yang 
-  Qingxuan Cui
+author: "Yanjie Lyu, Yi Yang, Qingxuan Cui"
 date: "2024-11-19"
 output:
   bookdown::pdf_document2:
@@ -144,7 +141,7 @@ threshold <- min_value * 1.3
 first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ```
-
+\clearpage
 # Statement of Contribution
 
 The contributions are distributed as follows:
