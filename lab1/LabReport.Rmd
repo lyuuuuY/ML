@@ -1,6 +1,9 @@
 ---
-title: "report_1"
-author: "Yanjie Lyu"
+title: "report_lab1"
+author: |
+  Yanjie Lyu  
+  Yi Yang 
+  Qingxuan Cui
 date: "2024-11-19"
 output:
   bookdown::pdf_document2:
@@ -11,7 +14,6 @@ header-includes:
 editor_options: 
   markdown: 
     wrap: 72
-
 ---
 
 ```{r setup, include=FALSE}
@@ -142,12 +144,21 @@ threshold <- min_value * 1.3
 first_stable_k <- which(valid_cross_entropy <= threshold)[1]
 
 ```
-# Contributions
+
+# Statement of Contribution
+
 The contributions are distributed as follows:
+
 Yanjie Lyu: Worked on Assignment 1 and Question 1 from Assignment 4.
+
 Yi Yang: Worked on Assignment 2 and Question 3 from Assignment 4.
+
 Qingxuan Cui: Worked on Assignment 3 and Question 2 from Assignment 4.
-After completing their respective assignments (including code writing and analysis), all results were shared and thoroughly discussed among the three members.
+
+After completing their respective assignments (including code writing
+and analysis), all results were shared and thoroughly discussed among
+the three members. the group report was created based on this
+discussion.
 
 # Assignment 1
 
@@ -530,8 +541,6 @@ cat("Degree of freedom when lambda=1000:",df_1000,"\n")
   \caption{A.2.1: Summary}
 \end{figure}
 
-
-
 ## Estimate traing and test MSE
 
 The MSE for training and test data show as follows:
@@ -612,24 +621,22 @@ balanced model complexity that avoids both overfitting and underfitting.
 
 ### Make a scatterplot showing a Plasma glucose concentration on Age where observations are colored by Diabetes levels
 
-The plot is shown in Figure \@ref(fig:rd). 
+The plot is shown in Figure \@ref(fig:rd).
 
 ### Debate whether Diabetes is easy to classify by a standard logistic regression model
 
-From the scatter plot between the given 2 features, that there is no any apparent boundary to classify
-the green points and red points representing whether being healthy or
-having diabetes. Based on that, I think it is not easy.
+From the scatter plot between the given 2 features, that there is no any
+apparent boundary to classify the green points and red points
+representing whether being healthy or having diabetes. Based on that, I
+think it is not easy.
 
 ## Step2
 
 ### Report the probabilistic equation of the estimated model
 
-The equation is: 
-$$
+The equation is: $$
 P(y|X,\beta) = \sigma(X\beta) = \frac{1}{1+exp(-X\beta)}
-$$ 
-where:
-$\sigma$() represents the sigmod function
+$$ where: $\sigma$() represents the sigmod function
 
 $X$ is input data
 
@@ -639,8 +646,9 @@ $y$ is predicted output
 
 ### Comment on the quality of the classification by using these results
 
-Based on accuracy of the prediction, besides the comparison between plots, 
-it is obvious that the quality is not good enough to classify them well.
+Based on accuracy of the prediction, besides the comparison between
+plots, it is obvious that the quality is not good enough to classify
+them well.
 
 ```{r echo=FALSE}
 result_1 <- paste("The accuracy can be considered as quality of classification:", acc_model1)
@@ -648,6 +656,7 @@ print(result_1)
 result_2 <- paste("Misclassification error is:", loss_model1)
 print(result_2)
 ```
+
 ### Make the scatter plot
 
 The plot is shown in Figure \@ref(fig:po).
@@ -662,7 +671,7 @@ cat("Decision Boundary:", intercept, "+", param_x1, "* x1 +", param_x2, "* x2 = 
 
 ### Add a curve showing this boundary to the scatter plot in step 2
 
-The plot with the curve is shown in Figure \@ref(fig:db). 
+The plot with the curve is shown in Figure \@ref(fig:db).
 
 ### Comment whether the decision boundary seems to catch the data distribution well
 
@@ -679,7 +688,9 @@ The plot with threhold = 0.2 and threhold = 0.8 are shown in Figure
 
 ### By using these plots, comment on what happens with the prediction when r value changes
 
-With the increasing value of r, less sample would be predicted as positive.
+With the increasing value of r, less sample would be predicted as
+positive.
+
 ```{r eval=FALSE, include=FALSE}
 label = model_data$label
 model_data$label = NULL
@@ -705,14 +716,16 @@ acc_model2 = mean(output_label == model_data$label)
 ### Create a scatterplot of the same kind as in step 2 for this model and compute the training misclassification rate
 
 The plot is shown in Figure \@ref(fig:po2)
+
 ```{r echo=FALSE}
 cat("The misclassification error of the present model is:", loss_model2, "\n")
 ```
 
 ### What can you say about the quality of this model compared to the previous logistic regression model
 
-After adding the non-linear elements into features, the performance of the model
-improved a little, but either cannot classify well.
+After adding the non-linear elements into features, the performance of
+the model improved a little, but either cannot classify well.
+
 ```{r echo=FALSE}
 
 cat("The misclassification error of the present model is:", loss_model2, "\n")
@@ -721,9 +734,11 @@ cat("The misclassification error of the previous model is:", loss_model1, "\n")
 
 ### How have the basis expansion trick affected the shape of the decision boundary and the prediction accuracy
 
-The decision boundary generated from original features is a linear function, 
-while the present decision boundary in the shape ofexponential function plot. 
-In the meanwhile, it does improve the accuracy but slightly.
+The decision boundary generated from original features is a linear
+function, while the present decision boundary in the shape ofexponential
+function plot. In the meanwhile, it does improve the accuracy but
+slightly.
+
 ```{r echo=FALSE}
 cat("The accuracy of the present model:", acc_model2, "\n")
 cat("The accuracy of the previous model: ", acc_model1, "\n")
@@ -745,7 +760,8 @@ essential to achieve performance based on different context(page 47-48).
 
 The vaules of label can be:
 
-manually assigned by domain experts or possiblysome auxiliary examination
+manually assigned by domain experts or possiblysome auxiliary
+examination
 
 calculated via specialised experiments and theories
 
@@ -773,6 +789,7 @@ This cost function is also referred to as the least squares cost. (page
 # Appendix
 
 ## Code for assignment 1
+
 ```{r, echo=TRUE, eval=FALSE}
 library(kknn)
 data <- read.csv("LAB1data/optdigits.csv", header = TRUE)  
