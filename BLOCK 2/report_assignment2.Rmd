@@ -124,6 +124,109 @@ mu
 plot(llik[1:it], type="o")
 ```
 
+
+```{r, include = FALSE}
+generateTrainData = function(condition){
+  x1 = runif(100)
+  x2 = runif(100)
+  trdata = cbind(x1,x2)
+  y = as.numeric(eval(parse(text = condition)))
+  trlabels = as.factor(y)
+  return(cbind(trdata, trlabels))
+}
+
+generateTestData = function(condition){
+  set.seed(1234)
+  x1 = runif(1000)
+  x2 = runif(1000)
+  tedata = cbind(x1,x2)
+  y = as.numeric(eval(parse(text = condition)))
+  telabels = as.factor(y)
+  return(cbind(tedata, telabels))
+}
+
+library(randomForest)
+
+trainFor3000Times = function(node_size, condition){
+  test_data = generateTestData(condition)
+  test_data[,3] = as.factor(test_data[,3])
+  ntrees = c(1, 10, 100)
+  rf_list = list()
+  mes = vector()
+  # mean_error_list = list()
+  # var_error_list = list()
+  eval_list = list()
+  eval = list()
+  for (j in 1:3){
+    for(i in 1:1000){
+      train_data = generateTrainData(condition)
+      rf = randomForest(as.factor(trlabels)~., data = train_data, ntrees = ntrees[j], nodesize = node_size, keep.forest = TRUE)
+      output = predict(rf, newdata = test_data)
+      me = mean(output != test_data[,3])
+      mes = c(me, mes)
+    }
+    # report here
+    trees = ntrees[j]
+    mean_error = mean(mes)
+    var_error = var(mes)
+    eval$mean = mean_error
+    eval$var = var_error
+    eval_list[[as.character(trees)]] = eval
+    # mean_error_list[[as.character(trees)]] =  mean_error
+    cat(trees, " trees:\n")
+    cat("Mean of misclassification error: ", mean_error, "\n")
+    cat("Variance of misclassification error: ", var_error, "\n")
+  }
+  return(eval_list)
+}
+
+# 
+# cat("Node Size = 25     Condition: x1<x2\n")
+# eval1  = trainFor3000Times(node_size = 25, condition = "x1<x2")
+# cat("Node Size = 12     Condition: x1<0.5\n")
+# eval2 = trainFor3000Times(node_size = 12, condition = "x1<0.5")
+# cat("Node Size = 12     Condition: (x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)\n")
+# eval3 = trainFor3000Times(node_size = 12, condition = "(x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)")
+```
+# Assignment 1
+
+## Train Random Forest models with different hyperparameters and dataset
+
+### Node size: 25, The condition of generated label: x1<x2
+```{r echo=FALSE}
+eval1  = trainFor3000Times(node_size = 25, condition = "x1<x2")
+```
+
+### Node size: 12, The condition of generated label: x1<0.5
+```{r echo=FALSE}
+eval2 = trainFor3000Times(node_size = 12, condition = "x1<0.5")
+```
+
+### Node size: 12, The condition of generated label: (x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)
+```{r echo=FALSE}
+eval3 = trainFor3000Times(node_size = 12, condition = "(x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)")
+```
+
+## Answer for following questions
+
+### What happens with the mean error rate when the number of trees in the random forest grows? Why?
+Among 3 different condition to generate label, the first one and the third one have the same trend 
+that mean values decrease in their changes of mean classification error, with increase of node size,
+while the mean value for the second one increase slightly. I think the second one is a case, thus,
+we can conclude that, with node size increasing, the classification error decreases generally.
+As for reason, I think the prime one is that a bigger "forest" represents that data can be sampled 
+for more times, subsequently we can acquire more base models trained by bootstrapped data sets, which 
+are different after uniformly sampling. In that case, model can learn the feature from more different 
+combinations of data subset, making the model less sensitive to outliers and noise.
+
+### The model trained with third dataset should get better performance than the first one. Why?
+Certainly, the third model have better performance with much smaller mean classification error.
+However, based on my instinct, the third condition is more complicated therefore the condition should be 
+found more difficultly. Whereas, the crux is that the third model set a smaller value about node size, in this 
+case, the tree can split the data set for more times until the node size is less than node_size, which means the trees 
+in third random forest model is deeper, and we can know that a deeper tree can catch more complicated relation between 
+label and input data. 
+
 # Assignment 2
 
 ## Set M=2,3,4,the results show as follows
@@ -398,9 +501,21 @@ A mixture model has too few clusters (e.g.,M=2 in this case) may lead to underfi
 # Assignment 3 Theory
 
 ## Impact of Ensemble Size (B) on Model Flexibility
+My answer is no:
 
+Flexibility means the model would be more complex to cope with some complicated data,
+which also means that it would be overfitted when B is big enough. (Bias tend to be smaller in train data and variance boom in test data)
+But actually we can see the effects after increasing B, based on the mean and variance:
 
+$$
+\mathbb{E} \left[ \frac{1}{B} \sum_{b=1}^B z_b \right] = \mu,
+$$
+$$
+\text{Var} \left[ \frac{1}{B} \sum_{b=1}^B z_b \right] = \frac{1-\rho}{B}\sigma^2 + \rho \sigma^2.
+$$
 
+Generally spkeaing, the variance would decrease while the bias remains. 
+Summarize, there is no evidence representing the model would be flexible after B increasing.(P169)
 
 ## The loss function used to train the boosted classifier at each iteration.
 
