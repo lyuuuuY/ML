@@ -1,10 +1,10 @@
 ---
 title: "report_lab1_block2"
-author: " Yanjie Lyu, Yi Yang,Qingxuan Cui"
+author: " Yanjie Lyu, Yi Yang, Qingxuan Cui"
 date: "2024-11-26"
 output:
   pdf_document: default
-  html_document: default
+  
 ---
 
 ```{r setup, include=FALSE}
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
  The contributions are distributed as follows:  
  Qingxuan Cui:    
  Yanjie Lyu:  
- Yi Yang: Worked on assignment 2 and question 2 from assignment 4.After completing their respective assignments(including code writing and analysis), all results were shared and thoroughly discussed among the three members.<br>
+ Yi Yang: Worked on assignment 2 and question 2 from assignment 4.After completing their respective assignments(including code writing and analysis), all results were shared and thoroughly discussed among the three members.
  
 
 ```{r , include=FALSE}
@@ -65,10 +65,7 @@ for(it in 1:max_it) {
   Sys.sleep(0.5)
   # E-step: Computation of the weights
   
-  #Bern <- vector(length = n)
-  #epsilon <- 1e-10
-  #mu <- pmax(mu, epsilon)
-  #mu <- pmin(mu, 1 - epsilon)
+
   
   p_x <- numeric(length = n)
   for (i in 1:n) {
@@ -118,10 +115,12 @@ for(it in 1:max_it) {
   }
 }
 
-
+cat("The result of pi is: ","\n")
 pi
+cat("The result of mu is :","\n")
 mu
 plot(llik[1:it], type="o")
+cat("\n")
 ```
 
 
@@ -232,12 +231,30 @@ label and input data.
 ## Set M=2,3,4,the results show as follows
 
 
-Set M=2,the results show as follows:
+### Set M=2,the results show as follows:
+
+
+```{r include=FALSE}
+library(knitr)
+```
+
+
 ```{r echo=FALSE}
-print(it)
-cat("iteration: ", it, "log likelihood: ", llik[it], "\n")
-plot(llik[1:it], type="o")
+cat(" The number of iteration is : ", it, "\n")
+cat(" The value of log likelihood: ", llik[it], "\n")
+```
+```{r echo=FALSE, fig.cap="A.2.1: Value of mu after iterations with 2 clusters", out.width="60%",fig.align='center'}
+include_graphics("./figure/M_2.png")
+```
+```{r echo=FALSE, fig.cap="A.2.2: Value of log likelihood duiring iterations with 2 clusters", out.width="60%",fig.align='center'}
+include_graphics("./figure/LOG_2.png")
+```
+
+
+```{r echo=FALSE}
+cat("The result of pi is: ","\n")
 pi
+cat("The result of mu is :","\n")
 mu
 ```
 
@@ -351,13 +368,27 @@ mu
 plot(llik[1:it], type="o")
 ```
 
-Set M=3, the results show as follows:
+### Set M=3, the results show as follows:
+
+
 ```{r echo=FALSE}
 
-print(it)
-cat("iteration: ", it, "log likelihood: ", llik[it], "\n")
-plot(llik[1:it], type="o")
+cat(" The number of iteration is : ", it, "\n")
+cat(" The value of log likelihood: ", llik[it], "\n")
+```
+```{r echo=FALSE, fig.cap="A.2.3: Value of mu after iterations with 3 clusters", out.width="60%",fig.align='center'}
+include_graphics("./figure/M_3.png")
+```
+```{r echo=FALSE, fig.cap="A.2.4: Value of log likelihood duiring iterations with 3 clusters", out.width="60%",fig.align='center'}
+include_graphics("./figure/LOG_3.png")
+
+```
+
+```{r echo=FALSE}
+
+cat("The result of pi is: ","\n")
 pi
+cat("The result of mu is :","\n")
 mu
 ```
 
@@ -407,11 +438,7 @@ for(it in 1:max_it) {
   points(mu[4,], type="o", col="yellow")
   Sys.sleep(0.1)
   # E-step: Computation of the weights
-  
-  #Bern <- vector(length = n)
-  #epsilon <- 1e-10
-  #mu <- pmax(mu, epsilon)
-  #mu <- pmin(mu, 1 - epsilon)
+ 
   
   p_x <- numeric(length = n)
   for (i in 1:n) {
@@ -466,15 +493,28 @@ for(it in 1:max_it) {
 
 pi
 mu
+
 plot(llik[1:it], type="o")
 ```
 
-Set M=4, the results show as follows:
+### Set M=4, the results show as follows:
 ```{r echo=FALSE}
-print(it)
-cat("iteration: ", it, "log likelihood: ", llik[it], "\n")
-plot(llik[1:it], type="o")
+cat(" The number of iteration is : ", it, "\n")
+cat(" The value of log likelihood: ", llik[it], "\n")
+```
+```{r echo=FALSE, fig.cap="A.2.5: Value of mu after iterations with 4 clusters", out.width="60%",fig.align='center'}
+include_graphics("./figure/M_4.png")
+```
+```{r echo=FALSE, fig.cap="A.2.6: Value of log likelihood duiring iterations with 4 clusters", out.width="60%",fig.align='center'}
+include_graphics("./figure/LOG_4.png")
+
+```
+
+```{r echo=FALSE}
+
+cat("The result of pi is: ","\n")
 pi
+cat("The result of mu is :","\n")
 mu
 ```
 
