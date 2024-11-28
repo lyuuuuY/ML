@@ -1,6 +1,6 @@
 set.seed(1234567890)
-max_it <- 200 # max number of EM iterations
-min_change <- 0.001 # min change in log lik between two consecutive iterations
+max_it <- 100 # max number of EM iterations
+min_change <- 0.1 # min change in log lik between two consecutive iterations
 n=1000 # number of training points
 D=10 # number of dimensions
 x <- matrix(nrow=n, ncol=D) # training data
