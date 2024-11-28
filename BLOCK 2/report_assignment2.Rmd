@@ -8,13 +8,12 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 ```
 # Contributions
  The contributions are distributed as follows:  
  Qingxuan Cui:    
  Yanjie Lyu:  
- Yi Yang: Worked on assignment 2 and question 2 from assignment 4.After completing their respective assignments(including code writing and analysis), all results were shared and thoroughly discussed among the three members.<br>
+ Yi Yang: Worked on assignment 2 and question 2 from assignment 4.After completing their respective assignments(including code writing and analysis), all results were shared and thoroughly discussed among the three members.
  
 
 ```{r , include=FALSE}
@@ -131,8 +130,12 @@ cat("\n")
 ### Set M=2,the results show as follows:
 
 
-```{r echo=FALSE}
+```{r include=FALSE}
 library(knitr)
+```
+
+
+```{r echo=FALSE}
 cat(" The number of iteration is : ", it, "\n")
 cat(" The value of log likelihood: ", llik[it], "\n")
 ```
