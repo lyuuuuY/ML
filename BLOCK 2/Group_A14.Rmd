@@ -240,7 +240,7 @@ of data subset, making the model less sensitive to outliers and noise.
 
 ### The model trained with third dataset should get better performance than the first one. Why?
 Certainly, the third model have better performance with much smaller mean classification error.
-tThe crux is that the third model set a smaller value about node size, in this 
+The crux is that the third model set a smaller value about node size, in this 
 case, the tree can split the data set for more times until the node size is less than node_size, which means the trees 
 in third random forest model are deeper, and we can know that a deeper tree can catch more complicated relations between 
 label and input data. 
