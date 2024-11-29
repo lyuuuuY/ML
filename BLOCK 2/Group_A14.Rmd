@@ -140,6 +140,69 @@ plot(llik[1:it], type="o")
 cat("\n")
 ```
 
+```{r, include = FALSE}
+generateTrainData = function(condition){
+  x1 = runif(100)
+  x2 = runif(100)
+  trdata = cbind(x1,x2)
+  y = as.numeric(eval(parse(text = condition)))
+  trlabels = as.factor(y)
+  return(cbind(trdata, trlabels))
+}
+
+generateTestData = function(condition){
+  set.seed(1234)
+  x1 = runif(1000)
+  x2 = runif(1000)
+  tedata = cbind(x1,x2)
+  y = as.numeric(eval(parse(text = condition)))
+  telabels = as.factor(y)
+  return(cbind(tedata, telabels))
+}
+
+library(randomForest)
+
+trainFor3000Times = function(node_size, condition){
+  test_data = generateTestData(condition)
+  test_data[,3] = as.factor(test_data[,3])
+  ntrees = c(1, 10, 100)
+  rf_list = list()
+  mes = vector()
+  # mean_error_list = list()
+  # var_error_list = list()
+  eval_list = list()
+  eval = list()
+  for (j in 1:3){
+    for(i in 1:1000){
+      train_data = generateTrainData(condition)
+      rf = randomForest(as.factor(trlabels)~., data = train_data, ntrees = ntrees[j], nodesize = node_size, keep.forest = TRUE)
+      output = predict(rf, newdata = test_data)
+      me = mean(output != test_data[,3])
+      mes = c(me, mes)
+    }
+    # report here
+    trees = ntrees[j]
+    mean_error = mean(mes)
+    var_error = var(mes)
+    eval$mean = mean_error
+    eval$var = var_error
+    eval_list[[as.character(trees)]] = eval
+    # mean_error_list[[as.character(trees)]] =  mean_error
+    cat(trees, " trees:\n")
+    cat("Mean of misclassification error: ", mean_error, "\n")
+    cat("Variance of misclassification error: ", var_error, "\n")
+  }
+  return(eval_list)
+}
+
+# 
+# cat("Node Size = 25     Condition: x1<x2\n")
+# eval1  = trainFor3000Times(node_size = 25, condition = "x1<x2")
+# cat("Node Size = 12     Condition: x1<0.5\n")
+# eval2 = trainFor3000Times(node_size = 12, condition = "x1<0.5")
+# cat("Node Size = 12     Condition: (x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)\n")
+# eval3 = trainFor3000Times(node_size = 12, condition = "(x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)")
+```
 \clearpage
 # Assignment 1
 
@@ -163,23 +226,23 @@ kable(df, col.names = c("Node Size", "Condition", "Number of Trees", "Error Mean
 
 ### What happens with the mean error rate when the number of trees in the random forest grows? Why?
 
-Among 3 different conditions to generate label, the first one and the
-third one has the same trend that the mean values decrease, with increase of node size, while the mean
-value for the second one increase slightly which can be considered as a case. Thus, we can conclude that, with node size increasing, the
-classification error decreases generally. As for reason, the prime one is 
+Among 3 different conditions for generating labels, the first  and 
+third conditions show the same trend, where the mean values decrease as node size increases, while the mean
+value for the second condition increases slightly, which could be considered an exception. Thus, we can conclude that as node size increases, the
+classification error decreases generally. The prime reason is 
 that a bigger "forest" represents that data can be sampled
-for more times, subsequently we can acquire more base models trained by
+more frequently, subsequently we can acquire more base models trained by
 bootstrapped data sets, which are different after uniformly sampling. In
 that case, model can learn the feature from more different combinations
 of data subset, making the model less sensitive to outliers and noise.
 
 ### The model trained with third dataset should get better performance than the first one. Why?
 
-Certainly, the third model have better performance with much smaller mean classification error.
+Certainly, the third model has better performance with much smaller mean classification error.
 The crux is that the third model sets a node size, in this 
 case, the tree can split the data set for more times until the node size is less than node_size, which means the trees 
 in third random forest model are deeper, and we can know that a deeper tree can catch more complicated relations between 
-label and input data. Thus, the less node size can perform better under the complicated condition.
+label and input data. Thus, the less node size can perform better under the complicated contidition.
 
 # Assignment 2
 
