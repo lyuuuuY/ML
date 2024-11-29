@@ -226,24 +226,23 @@ kable(df, col.names = c("Node Size", "Condition", "Number of Trees", "Error Mean
 
 ### What happens with the mean error rate when the number of trees in the random forest grows? Why?
 
-Among 3 different condition to generate label, the first one and the
-third one have the same trend that mean values decrease in their changes
-of mean classification error, with increase of node size, while the mean
-value for the second one increase slightly. I think the second one is a
-case, thus, we can conclude that, with node size increasing, the
-classification error decreases generally. As for reason, I think the
-prime one is that a bigger "forest" represents that data can be sampled
+Among 3 different conditions to generate label, the first one and the
+third one has the same trend that the mean values decrease, with increase of node size, while the mean
+value for the second one increase slightly which can be considered as a case. Thus, we can conclude that, with node size increasing, the
+classification error decreases generally. As for reason, the prime one is 
+that a bigger "forest" represents that data can be sampled
 for more times, subsequently we can acquire more base models trained by
 bootstrapped data sets, which are different after uniformly sampling. In
 that case, model can learn the feature from more different combinations
 of data subset, making the model less sensitive to outliers and noise.
 
 ### The model trained with third dataset should get better performance than the first one. Why?
+
 Certainly, the third model have better performance with much smaller mean classification error.
-The crux is that the third model set a smaller value about node size, in this 
+The crux is that the third model sets a node size, in this 
 case, the tree can split the data set for more times until the node size is less than node_size, which means the trees 
 in third random forest model are deeper, and we can know that a deeper tree can catch more complicated relations between 
-label and input data. 
+label and input data. Thus, the less node size can perform better under the complicated contidition.
 
 # Assignment 2
 
@@ -675,7 +674,7 @@ cat("Node Size = 12     Condition: (x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)\n")
 eval3 = trainFor3000Times(node_size = 12, condition = "(x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)")
 ```
 
-## code for assignment 2
+## Code for assignment 2
 
 ```{r , echo=TRUE,eval=FALSE}
 set.seed(1234567890)
