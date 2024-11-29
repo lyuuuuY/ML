@@ -8,17 +8,31 @@ output:
     toc: true
 header-includes:
   - \setlength{\tabcolsep}{10pt} % 
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-# Contributions
- The contributions are distributed as follows:  
- Qingxuan Cui: Worked on assignment 1 and question 1 in assignment 4, with sharing and discussing the results.
- Yanjie Lyu:  
- Yi Yang: Worked on assignment 2 and question 2 from assignment 4.After completing their respective assignments(including code writing and analysis), all results were shared and thoroughly discussed among the three members.
- 
+
+# Statement of Contribution
+
+The contributions are distributed as follows:
+
+Qingxuan Cui: Worked on assignment 1 and question 1 in assignment 4,
+with sharing and discussing the results.
+
+Yanjie Lyu: Worked on assignment 2 (Mathematical derivation, and part of
+coding) and question 3 from assignment 4. 
+
+Yi Yang: Worked on assignment 2 (Part of
+coding and analysis) and question 2 from assignment 4.
+
+After completing their respective assignments(including code writing and
+analysis), all results were shared and thoroughly discussed among the
+three members.
 
 ```{r , include=FALSE}
 set.seed(1234567890)
@@ -126,7 +140,6 @@ plot(llik[1:it], type="o")
 cat("\n")
 ```
 
-
 ```{r, include = FALSE}
 generateTrainData = function(condition){
   x1 = runif(100)
@@ -190,9 +203,11 @@ trainFor3000Times = function(node_size, condition){
 # cat("Node Size = 12     Condition: (x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)\n")
 # eval3 = trainFor3000Times(node_size = 12, condition = "(x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)")
 ```
+\clearpage
 # Assignment 1
 
 ## Train Random Forest models with different hyperparameters and dataset
+
 ```{r, echo=FALSE}
 library(knitr)
 
@@ -207,52 +222,56 @@ df = data.frame(
 kable(df, col.names = c("Node Size", "Condition", "Number of Trees", "Error Mean", "Error Variance")) 
 ```
 
-
-
 ## Answer for following questions
 
 ### What happens with the mean error rate when the number of trees in the random forest grows? Why?
-Among 3 different condition to generate label, the first one and the third one have the same trend 
-that mean values decrease in their changes of mean classification error, with increase of node size,
-while the mean value for the second one increase slightly. I think the second one is a case, thus,
-we can conclude that, with node size increasing, the classification error decreases generally.
-As for reason, I think the prime one is that a bigger "forest" represents that data can be sampled 
-for more times, subsequently we can acquire more base models trained by bootstrapped data sets, which 
-are different after uniformly sampling. In that case, model can learn the feature from more different 
-combinations of data subset, making the model less sensitive to outliers and noise.
+
+Among 3 different condition to generate label, the first one and the
+third one have the same trend that mean values decrease in their changes
+of mean classification error, with increase of node size, while the mean
+value for the second one increase slightly. I think the second one is a
+case, thus, we can conclude that, with node size increasing, the
+classification error decreases generally. As for reason, I think the
+prime one is that a bigger "forest" represents that data can be sampled
+for more times, subsequently we can acquire more base models trained by
+bootstrapped data sets, which are different after uniformly sampling. In
+that case, model can learn the feature from more different combinations
+of data subset, making the model less sensitive to outliers and noise.
 
 ### The model trained with third dataset should get better performance than the first one. Why?
-Certainly, the third model have better performance with much smaller mean classification error.
-However, based on my instinct, the third condition is more complicated therefore the condition should be 
-found more difficultly. Whereas, the crux is that the third model set a smaller value about node size, in this 
-case, the tree can split the data set for more times until the node size is less than node_size, which means the trees 
-in third random forest model is deeper, and we can know that a deeper tree can catch more complicated relation between 
-label and input data. 
+
+Certainly, the third model have better performance with much smaller
+mean classification error. However, based on my instinct, the third
+condition is more complicated therefore the condition should be found
+more difficultly. Whereas, the crux is that the third model set a
+smaller value about node size, in this case, the tree can split the data
+set for more times until the node size is less than node_size, which
+means the trees in third random forest model is deeper, and we can know
+that a deeper tree can catch more complicated relation between label and
+input data.
 
 # Assignment 2
 
 ## Set M=2,3,4,the results show as follows
 
-
 ### Set M=2,the results show as follows:
-
 
 ```{r include=FALSE}
 library(knitr)
 ```
 
-
 ```{r echo=FALSE}
 cat(" The number of iteration is : ", it, "\n")
 cat(" The value of log likelihood: ", llik[it], "\n")
 ```
+
 ```{r echo=FALSE, fig.cap="A.2.1: Value of mu after iterations with 2 clusters", out.width="60%",fig.align='center'}
 include_graphics("./figure/M_2.png")
 ```
+
 ```{r echo=FALSE, fig.cap="A.2.2: Value of log likelihood duiring iterations with 2 clusters", out.width="60%",fig.align='center'}
 include_graphics("./figure/LOG_2.png")
 ```
-
 
 ```{r echo=FALSE}
 cat("The result of pi is: ","\n")
@@ -260,8 +279,6 @@ pi
 cat("The result of mu is :","\n")
 mu
 ```
-
-
 
 ```{r , include=FALSE}
 set.seed(1234567890)
@@ -373,15 +390,16 @@ plot(llik[1:it], type="o")
 
 ### Set M=3, the results show as follows:
 
-
 ```{r echo=FALSE}
 
 cat(" The number of iteration is : ", it, "\n")
 cat(" The value of log likelihood: ", llik[it], "\n")
 ```
+
 ```{r echo=FALSE, fig.cap="A.2.3: Value of mu after iterations with 3 clusters", out.width="60%",fig.align='center'}
 include_graphics("./figure/M_3.png")
 ```
+
 ```{r echo=FALSE, fig.cap="A.2.4: Value of log likelihood duiring iterations with 3 clusters", out.width="60%",fig.align='center'}
 include_graphics("./figure/LOG_3.png")
 
@@ -501,13 +519,16 @@ plot(llik[1:it], type="o")
 ```
 
 ### Set M=4, the results show as follows:
+
 ```{r echo=FALSE}
 cat(" The number of iteration is : ", it, "\n")
 cat(" The value of log likelihood: ", llik[it], "\n")
 ```
+
 ```{r echo=FALSE, fig.cap="A.2.5: Value of mu after iterations with 4 clusters", out.width="60%",fig.align='center'}
 include_graphics("./figure/M_4.png")
 ```
+
 ```{r echo=FALSE, fig.cap="A.2.6: Value of log likelihood duiring iterations with 4 clusters", out.width="60%",fig.align='center'}
 include_graphics("./figure/LOG_4.png")
 
@@ -523,57 +544,79 @@ mu
 
 ## Compare results
 
-Case of M = 2 :
- The log-likelihood value(-6362.897) is lower than M=3 and M=4, which shows that the model is relatively simple to capture the features of the data. The number of iterations(12) shows that  it converges quickly but to a poor local optimal.
+Case of M = 2 : The log-likelihood value(-6362.897) is lower than M=3
+and M=4, which shows that the model is relatively simple to capture the
+features of the data. The number of iterations(12) shows that it
+converges quickly but to a poor local optimal.
 
-Case of M = 3 :
-The log-likelihood value(-6344.5) shows a significant improvement compared to M =2, which indicates the model fits the true distribution of the data more accurately. The number of iterations(26) shows a better balance between model complexity and model performance.
+Case of M = 3 : The log-likelihood value(-6344.5) shows a significant
+improvement compared to M =2, which indicates the model fits the true
+distribution of the data more accurately. The number of iterations(26)
+shows a better balance between model complexity and model performance.
 
-Case of M = 4 :
-The log-likelihood value(-6338.288) improves slightly compared to M =3,which means it does not show a significant improvement. The number of iterations(44) indicates increased model complexity complex to M=3, which may result in  overfitting and the model may capture noise in the data.
+Case of M = 4 : The log-likelihood value(-6338.288) improves slightly
+compared to M =3,which means it does not show a significant improvement.
+The number of iterations(44) indicates increased model complexity
+complex to M=3, which may result in overfitting and the model may
+capture noise in the data.
 
-Conclusion:
-A mixture model has too few clusters (e.g.,M=2 in this case) may lead to underfitting and can not capture necessary features from the data.On the contrary, a mixture with too many clusters(e.g.,M=4 in this case) may lead to excessive model complexity with little model performance. And clustering is not necessarily the case to minimize the " clustering loss", so we may perfer a smaller model(e.g.,M=3 in this case) over a large one even if the latter shows a slightly better log-likelihood.
-
-
-
-
-
-
+Conclusion: A mixture model has too few clusters (e.g.,M=2 in this case)
+may lead to underfitting and can not capture necessary features from the
+data.On the contrary, a mixture with too many clusters(e.g.,M=4 in this
+case) may lead to excessive model complexity with little model
+performance. And clustering is not necessarily the case to minimize the
+" clustering loss", so we may perfer a smaller model(e.g.,M=3 in this
+case) over a large one even if the latter shows a slightly better
+log-likelihood.
 
 # Assignment 3 Theory
 
 ## Impact of Ensemble Size (B) on Model Flexibility
+
 My answer is no:
 
-Flexibility means the model would be more complex to cope with some complicated data,
-which also means that it would be overfitted when B is big enough. (Bias tend to be smaller in train data and variance boom in test data)
-But actually we can see the effects after increasing B, based on the mean and variance:
+Flexibility means the model would be more complex to cope with some
+complicated data, which also means that it would be overfitted when B is
+big enough. (Bias tend to be smaller in train data and variance boom in
+test data) But actually we can see the effects after increasing B, based
+on the mean and variance:
 
 $$
 \mathbb{E} \left[ \frac{1}{B} \sum_{b=1}^B z_b \right] = \mu,
-$$
-$$
+$$ $$
 \text{Var} \left[ \frac{1}{B} \sum_{b=1}^B z_b \right] = \frac{1-\rho}{B}\sigma^2 + \rho \sigma^2.
 $$
 
-Generally spkeaing, the variance would decrease while the bias remains. 
-Summarize, there is no evidence representing the model would be flexible after B increasing.(P169)
+Generally spkeaing, the variance would decrease while the bias remains.
+Summarize, there is no evidence representing the model would be flexible
+after B increasing.(P169)
 
 ## The loss function used to train the boosted classifier at each iteration.
 
-
 $$
 L(y \cdot f(x)) = \exp(-y \cdot f(x))
-$$
-where $$ y\cdot f(x)$$ is the margin of the classifier. The ensemble members are added one at a time, and when member b is added, this is done to minimise the exponential loss of the entire ensemble. The reason why we choose the exponential loss is because it results in convenient closed form expressions.
-(page 177)
+$$ where $$ y\cdot f(x)$$ is the margin of the classifier. The ensemble
+members are added one at a time, and when member b is added, this is
+done to minimise the exponential loss of the entire ensemble. The reason
+why we choose the exponential loss is because it results in convenient
+closed form expressions. (page 177)
 
 ## Use cross-validation to select the number of clusters
 
+Data is split into K folds, and the model is trained on K-1 folds while
+leaving one fold out as a validation set. For each candidate value of M,
+we compute the average log-likelihood across all validation folds:
+
+$$
+\frac{1}{K} \sum_{k=1}^{K} \log p\left(\{x'_j\}_{j=1}^{n_k} \mid \hat{\theta}_k, M\right),
+$$ The model with the largest average validation log-likelihood is then
+selected as the final clustering model with its optimal number of
+components M. (page 267)
 
 # Appendix
+
 ## Code for assignment 1
+
 ```{r, echo=TRUE, eval=FALSE}
 generateTrainData = function(condition){
   x1 = runif(100)
@@ -636,7 +679,9 @@ eval2 = trainFor3000Times(node_size = 12, condition = "x1<0.5")
 cat("Node Size = 12     Condition: (x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)\n")
 eval3 = trainFor3000Times(node_size = 12, condition = "(x1<0.5 & x2<0.5)|(x1>0.5 & x2>0.5)")
 ```
-##code for assignment 2
+
+## code for assignment 2
+
 ```{r , echo=TRUE,eval=FALSE}
 set.seed(1234567890)
 max_it <- 100 # max number of EM iterations
