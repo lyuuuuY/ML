@@ -1,0 +1,70 @@
+---
+title: "part1"
+author: "Cui Qingxuan"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+
+```{r}
+data = read.csv("data/tecator.csv")
+head(data)
+```
+```{r}
+dataProcessing = function(data, colnames){
+    for(i in colnames)
+        data[[i]] = NULL
+    return(data)
+}
+
+dataSplit = function(data, proportion){
+    set.seed(12345)
+    n = dim(data)[1]
+    id = sample(1:n,floor(n*0.5))
+    train_data = data[id,]
+    test_data = data[-id,]
+    data_list = list()
+    data_list$train = train_data
+    data_list$test = test_data
+    return(data_list)
+}
+
+computeMSE = function(model ,data){
+    pred = predict(model, data)
+    mse = mean((data$Fat - pred) ** 2)
+    return(mse)
+}
+```
+# 1
+```{r}
+data = dataProcessing(data, c("Sample", "Protein", "Moisture"))
+data_list = dataSplit(data, proportion = 0.5)
+train_data = data_list$train
+test_data = data_list$test
+
+lr = lm(Fat ~ ., data = train_data)
+trainMSE = computeMSE(lr, train_data)
+testMSE = computeMSE(lr, test_data)
+
+# plot(predict(lr, test_data) - test_data$Fat) 
+# abline(h = 0, col = "red") 
+
+```
+# 2,3
+```{r}
+library(glmnet)
+x_train <- as.matrix(train_data[, -which(names(train_data) == "Fat")]) 
+y_train <- train_data$Fat  
+lasso_model <- glmnet(x_train, y_train, alpha = 1)
+
+# Plot the coefficient paths
+plot(lasso_model, xvar = "lambda", label = TRUE)
+axis(1, at = log(lasso_model$lambda), labels = floor(lasso_model$lambda)) 
+```
+
+# 4
+```{r}
+ridge_model <- glmnet(x_train, y_train, alpha = 0)
+plot(ridge_model, xvar = "lambda", label = TRUE)
+axis(1, at = log(ridge_model$lambda), labels = floor(ridge_model$lambda)) 
+```
