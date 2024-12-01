@@ -53,10 +53,6 @@ test_data = data_list$test
 lr = lm(Fat ~ ., data = train_data)
 trainMSE = computeMSE(lr, train_data)
 testMSE = computeMSE(lr, test_data)
-
-# plot(predict(lr, test_data) - test_data$Fat) 
-# abline(h = 0, col = "red") 
-
 ```
 # 2,3
 ```{r}
@@ -66,35 +62,27 @@ y_train = train_data$Fat
 lasso_model = glmnet(x_train, y_train, alpha = 1)
 
 # Plot the coefficient paths
-png("fig/p1_img1.png", width = 800, height = 600, res = 150)
+png("fig/p1_img1.png", width = 1800, height = 1200, res = 300)
 plot(lasso_model, xvar = "lambda", label = TRUE)
 axis(1, at = log(lasso_model$lambda), labels = floor(lasso_model$lambda)) 
-
 ```
-
 # 4
 ```{r}
-ridge_model <- glmnet(x_train, y_train, alpha = 0)
-png("fig/p1_img2.png", width = 800, height = 600, res = 150)
+ridge_model = glmnet(x_train, y_train, alpha = 0)
+png("fig/p1_img2.png", width = 1800, height = 1200, res = 300)
 plot(ridge_model, xvar = "lambda", label = TRUE)
 axis(1, at = log(ridge_model$lambda), labels = floor(ridge_model$lambda)) 
 dev.off()
 ```
-
-
 # 5 
 ```{r}
-
 cv_lasso = cv.glmnet(x_train, y_train, alpha = 1)
 cv_scores = cv_lasso$cvm
-
-
-
 # Load necessary libraries
 library(ggplot2)
 
 # Extract data for plotting
-plot_data <- data.frame(
+plot_data = data.frame(
   log_lambda = log(cv_lasso$lambda),  # Log of lambda values
   cv_scores = cv_lasso$cvm           # CV scores (MSE)
 )
@@ -115,13 +103,12 @@ p3 = ggplot(plot_data, aes(x = log_lambda, y = cv_scores)) +
     annotate("text", x = log(cv_lasso$lambda.1se), y = min(cv_lasso$cvm), 
              label = "λ.1se", color = "blue", hjust = -0.2, vjust = -0.5) +
     theme_minimal()
-ggsave("fig/p1_pic3.png", plot = p3,width = 800, height = 600, dpi = 300)
-
+ggsave("fig/p1_pic3.png", plot = p3, width = 6, height = 4, dpi = 300)
 
 optimal_lambda = cv_lasso$lambda.min
 cat("the optimal lambda: ", optimal_lambda,"\n")
-coef <- coef(cv_lasso, s = optimal_lambda)
-var_num <- sum(coef != 0) - 1
+coef = coef(cv_lasso, s = optimal_lambda)
+var_num = sum(coef != 0) - 1
 cat("the number of variables: ", var_num,"\n")
 
 mse_optimal_lam = computeMSE(cv_lasso, test_data, lambda = optimal_lambda)
@@ -132,12 +119,9 @@ cat("lambda = optimal lambda, mse = ", mse_optimal_lam, "\n")
 ```
 ## plot
 ```{r}
-library(ggplot2)
-
 y_test = test_data$Fat
 x_test = test_data[, -which(names(test_data) == "Fat")]
 y_pred = predict(cv_lasso, s = optimal_lambda, newx = as.matrix(x_test))
-
 
 p4 = ggplot(data = cbind(y_test, y_pred), mapping = aes(x = y_test, y = y_pred)) +
   geom_point(size = 2) +
@@ -147,7 +131,7 @@ p4 = ggplot(data = cbind(y_test, y_pred), mapping = aes(x = y_test, y = y_pred))
        y = "Predicted Labels") +
   theme_minimal()
 
-ggsave("fig/p1_pic4.png", plot = p4,width = 800, height = 600, dpi = 300)
+ggsave("fig/p1_pic4.png", plot = p4, width = 6, height = 4, dpi = 300)
 ```
 
 
