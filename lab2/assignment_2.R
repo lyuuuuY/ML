@@ -1,7 +1,7 @@
 library(tree)
 library(rpart)
 library(pROC)
-data <- read.csv("lab2/data/bank-full.csv", header = TRUE, sep = ";")
+data <- read.csv("data/bank-full.csv", header = TRUE, sep = ";")
 data <- data[,-12]
 data$y <- as.factor(data$y)
 characer_col <- c()
@@ -73,19 +73,15 @@ for (i in 2:51) {
   # Compute misclassification rates
   trainScore[i - 1] <- mean(pred_train != train$y)
   testScore[i - 1] <- mean(pred_valid != valid$y)
-  
-  #trainScore[i - 1] <- sqrt(mean((train$y - exp(pred_train))^2))
-  
-  #testScore[i - 1] <- sqrt(mean((valid$y - exp(pred_valid))^2))
-  
+
 }
-#plot(2:50, trainScore[2:50], type="b", col="red", 
- #    ylim=c(10000,13000))
+
 plot(2:50, trainScore[2:50], type="b", col="red", 
      ylim=c(0.094,0.11))
 points(2:50, testScore[2:50], type="b", col="blue")
 
 # find optimal size
+
 best_size <- which(testScore==min(testScore))[2]
 optimal_tree <- prune.tree(bank_tree_3, best = best_size, method = "misclass")
 

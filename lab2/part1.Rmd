@@ -2,15 +2,20 @@
 title: "part1"
 author: "Cui Qingxuan"
 date: "`r Sys.Date()`"
-output: pdf_document
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+    latex_engine: xelatex
 ---
 
+# Assignment 1
 
-```{r}
+```{r include=FALSE}
 data = read.csv("data/tecator.csv")
 head(data)
 ```
-```{r}
+
+```{r include=FALSE}
 dataProcessing = function(data, colnames){
     for(i in colnames)
         data[[i]] = NULL
@@ -43,8 +48,10 @@ computeMSE = function(model ,data, lambda = NULL){
     }
 }
 ```
-# 1
-```{r}
+
+## Quality of fit, prediction and model with linear regression.
+
+```{r include=FALSE}
 data = dataProcessing(data, c("Sample", "Protein", "Moisture"))
 data_list = dataSplit(data, proportion = 0.5)
 train_data = data_list$train
@@ -54,8 +61,17 @@ lr = lm(Fat ~ ., data = train_data)
 trainMSE = computeMSE(lr, train_data)
 testMSE = computeMSE(lr, test_data)
 ```
-# 2,3
-```{r}
+
+```{r echo=FALSE}
+cat("The MSE of training data is:",trainMSE,"\n")
+cat("The MSE of test data is:",testMSE,"\n")
+```
+
+The model performs well on the training data (MSE = 0.0057), but has a large error on the test data (MSE = 722.4294), indicating that the model cannot be generalized and there is a serious overfitting phenomenon.
+
+## Report the cost function
+
+```{r include=FALSE}
 library(glmnet)
 x_train = as.matrix(train_data[, -which(names(train_data) == "Fat")]) 
 y_train = train_data$Fat  
@@ -66,16 +82,71 @@ png("fig/p1_img1.png", width = 1800, height = 1200, res = 300)
 plot(lasso_model, xvar = "lambda", label = TRUE)
 axis(1, at = log(lasso_model$lambda), labels = floor(lasso_model$lambda)) 
 ```
-# 4
-```{r}
+
+The cost function for **LASSO regression** is defined as:
+
+$J(\beta) = \frac{1}{2n} \sum_{i=1}^n \big(y_i - \mathbf{X}_i \cdot \beta \big)^2 + \lambda \sum_{j=1}^p |\beta_j|$
+
+Where lambda controls the regularization strength.
+
+## interpret LASSO Coefficient Paths Plot
+
+```{r echo=FALSE}
+cat("\nCoefficients for different lambda values:\n")
+plot(lasso_model, xvar = "lambda", label = TRUE)
+title(main = "LASSO Coefficient Paths")
+```
+
+1.  This graph shows the path that the regression coefficient of each feature in the **LASSO regression model** changes with the regularization parameter $\log(\lambda)$ : the horizontal axis is $\log(\lambda)$, and the vertical axis is the value of the regression coefficient for each feature.
+
+2.  With the increase of $\lambda$ (from right to left), the regularization force is enhanced, and the coefficients of most features are compressed to 0, leaving only a few important features with non-zero coefficients, which realizes feature selection.
+
+## model with only three features
+
+```{r echo=FALSE}
+# 确定仅保留3个非零特征的 lambda 值
+for (i in seq_along(lasso_model$lambda)) {
+  coefs <- coef(lasso_model, s = lasso_model$lambda[i])
+  non_zero_count <- sum(coefs != 0) - 1  
+  if (non_zero_count == 3) {
+    lambda_selected <- lasso_model$lambda[i]
+    cat("Lambda with 3 non-zero coefficients:", lambda_selected, "\n")
+    break
+  }
+}
+
+```
+
+```{r echo=FALSE}
+coefs <- coef(lasso_model, s = lambda_selected)
+coefs_selected_list <- which(coefs!=0)
+coefs_selected_list <- coefs_selected_list[-1] # 去掉截距
+coefs_selected <- coefs[coefs_selected_list,]
+cat("The remaining features are:", "\n")
+print(coefs_selected)
+
+```
+
+## fit Ridge regression and compare the plots from steps 3 and 4
+
+```{r echo=FALSE}
 ridge_model = glmnet(x_train, y_train, alpha = 0)
-png("fig/p1_img2.png", width = 1800, height = 1200, res = 300)
+
 plot(ridge_model, xvar = "lambda", label = TRUE)
 axis(1, at = log(ridge_model$lambda), labels = floor(ridge_model$lambda)) 
-dev.off()
+
+
 ```
-# 5 
-```{r}
+
+LASSO coefficient path diagram:
+
+As $\lambda$ increases, the coefficients of many features are compressed to 0, and the model becomes sparse.
+
+Ridge coefficient path map:
+
+As $\lambda$ increases, the coefficients of all features gradually shrink, but they do not become zero.\
+
+```{r include=FALSE}
 cv_lasso = cv.glmnet(x_train, y_train, alpha = 1)
 cv_scores = cv_lasso$cvm
 # Load necessary libraries
@@ -117,8 +188,37 @@ mse_certain_lam = computeMSE(cv_lasso, test_data, lambda = logminus4_lambda)
 cat("lambda = -4, mse = ", mse_certain_lam, "\n")
 cat("lambda = optimal lambda, mse = ", mse_optimal_lam, "\n")
 ```
-## plot
-```{r}
+
+## Task 5
+
+### dependence of the CV score on $\log(\lambda)$
+
+```{r echo=FALSE}
+p3
+```
+
+(comment)
+
+### Optimal $lambda$
+
+```{r echo=FALSE}
+cat("the optimal lambda: ", optimal_lambda,"\n")
+coef = coef(cv_lasso, s = optimal_lambda)
+var_num = sum(coef != 0) - 1
+cat("the number of variables: ", var_num,"\n")
+
+mse_optimal_lam = computeMSE(cv_lasso, test_data, lambda = optimal_lambda)
+logminus4_lambda = cv_lasso$lambda[which.min(abs(log(cv_lasso$lambda) + 4))]
+mse_certain_lam = computeMSE(cv_lasso, test_data, lambda = logminus4_lambda)
+cat("log_lambda = -4, mse = ", mse_certain_lam, "\n")
+cat("lambda = ",optimal_lambda, "mse = ", mse_optimal_lam, "\n")
+```
+
+The difference in MSE values is very small, approximately 0.19, which is unlikely to be statistically significant.
+
+### Scatter plot of the original test versus predicted test values
+
+```{r include=FALSE}
 y_test = test_data$Fat
 x_test = test_data[, -which(names(test_data) == "Fat")]
 y_pred = predict(cv_lasso, s = optimal_lambda, newx = as.matrix(x_test))
@@ -131,7 +231,14 @@ p4 = ggplot(data = cbind(y_test, y_pred), mapping = aes(x = y_test, y = y_pred))
        y = "Predicted Labels") +
   theme_minimal()
 
-ggsave("fig/p1_pic4.png", plot = p4, width = 6, height = 4, dpi = 300)
 ```
 
+```{r echo=FALSE}
+p4
+```
 
+The model performs well overall, as most predictions are close to the actual values.
+
+The scatterplot shows that the model captures the general trend of the data, with no significant systematic errors.
+
+But a few outliers at higher values suggest the model may struggle with extreme cases or higher variability in predictions for larger labels.
