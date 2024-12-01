@@ -244,6 +244,7 @@ The scatterplot shows that the model captures the general trend of the data, wit
 But a few outliers at higher values suggest the model may struggle with extreme cases or higher variability in predictions for larger labels.
 
 # Assignment 3
+
 ```{r include=FALSE}
 communities <- read.csv("data/communities.csv")
 
@@ -471,7 +472,7 @@ cat("Top 5 features that contributed mostly to the first principle component: ",
 
 medFamInc:median family income (differs from household income for non-family households
 
-medIncome:median household income 
+medIncome:median household income
 
 PctKids2Par: percentage of kids in family housing with two parents
 
@@ -479,13 +480,13 @@ pctWInvInc:percentage of households with investment / rent income in 1989
 
 PctPopUnderPov:percentage of people under the poverty level
 
-Conclusion: 
+Conclusion:
 
-These five features mainly describes the following aspects: 
+These five features mainly describes the following aspects:
 
 1.Median family income; 2.Median household income; 3.Percentage of kids in family housing with two parents; 4.Percentage of households with investment / rent income; 5.Percentage of people under the poverty level.
 
-All five features are related to family property and household wealth levels. The logical relationship to  crime levels is that families with fewer financial resources or more children (which increases financial budget) may be more likely to resort to illegal activities to obtain money. Financial stress within household may be a significant factor contributing to crime level. 
+All five features are related to family property and household wealth levels. The logical relationship to crime levels is that families with fewer financial resources or more children (which increases financial budget) may be more likely to resort to illegal activities to obtain money. Financial stress within household may be a significant factor contributing to crime level.
 
 ### plot of the PC scores in the coordinates (PC1, PC2)
 
@@ -497,11 +498,11 @@ ggplot(fir_sec_prin_df,aes(x=PC1,y=PC2,color=ViolentCrimesPerPop))+
   theme_minimal()
 ```
 
-1. The score of the data point on the first principal component (PC1) is significantly positively correlated with the violent crime rate ("ViolentCrimesPerPop"), which tends to increase when PC1 increases (yellow).
+1.  The score of the data point on the first principal component (PC1) is significantly positively correlated with the violent crime rate ("ViolentCrimesPerPop"), which tends to increase when PC1 increases (yellow).
 
-2. The second principal component (PC2) has a weak ability to distinguish the violent crime rate, and the distribution of data points in this direction is relatively symmetrical, and there is no obvious pattern.
+2.  The second principal component (PC2) has a weak ability to distinguish the violent crime rate, and the distribution of data points in this direction is relatively symmetrical, and there is no obvious pattern.
 
-3. The overall arc distribution of the data indicates that there may be a nonlinear relationship, and further analysis of the characteristic contribution of PC1 is needed to understand the key factors affecting the violent crime rate.
+3.  The overall arc distribution of the data indicates that there may be a nonlinear relationship, and further analysis of the characteristic contribution of PC1 is needed to understand the key factors affecting the violent crime rate.
 
 ## Task 3
 
@@ -512,12 +513,25 @@ cat("MSE for the training data is :",MSE_training,"\n")
 cat("MSE for the test data is :",MSE_test,"\n")
 cat("The R^2 value for the model is: ",R2,"\n")
 ```
-1. The MSE of the model on the training data is 0.275, and the MSE on the test data is 0.425. The test error is slightly higher but generally close, indicating that the model is stable and the degree of overfitting is low.
 
-2. The coefficient of determination R² is 0.725, indicating that the model can explain 72.5% of the variance of violent crime rate, but 27.5% of the variation is still unexplained.
+1.  The MSE of the model on the training data is 0.275, and the MSE on the test data is 0.425. The test error is slightly higher but generally close, indicating that the model is stable and the degree of overfitting is low.
 
-3. A slight increase in the test error may indicate the need to optimize features or introduce regularization methods to further improve the generalization ability of the model.
+2.  The coefficient of determination R² is 0.725, indicating that the model can explain 72.5% of the variance of violent crime rate, but 27.5% of the variation is still unexplained.
+
+3.  A slight increase in the test error may indicate the need to optimize features or introduce regularization methods to further improve the generalization ability of the model.
 
 ## Task 4
 
+# Assignment 4. Theory
 
+## What are the practical approaches for reducing the expected new data error, according to the book?
+
+To achieve minimal $E_{new}$, according to the decomposition $E_{new}$ = $E_{train}$ $+$ generalization gap, we need to have $E_{train}$ as well as the generalization gap small.
+
+1. Increasing the size of the training data to reduce the generalization gap and $E_{new}$;
+
+2. If $E_{hold-out}$ $\approx$ $E_{train}$ (small generalization gap; possibly underfitting), it might be beneficial to increase the model flexibility by loosening the regularization, increasing the model order (more parameters to learn), etc.
+
+3. If $E_{train}$ is close to zero and $E_{hold-out}$ is not (possibly overfitting), it might be beneficial to decrease the model flexibility by tightening the regularization, decreasing the order (fewer parameters to learn), etc.
+
+(page 66-67)
