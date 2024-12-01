@@ -1,4 +1,4 @@
-communities <- read.csv("communities.csv")
+communities <- read.csv("data/communities.csv")
 
 #task 1
 #scale data except of `ViolentCrimesPerPop`
@@ -55,6 +55,19 @@ ggplot(df_first,aes(x=index,y=first_principle_component))+
         geom_line()+
         labs(title = "The trace of the first principle component",x="Index",y="The First Principle Component")+
         theme_minimal()
+
+scree_data <- data.frame(
+  Component = 1:length(eigen_values),
+  Variance_Explained = propotion_variance
+)
+
+ggplot(scree_data, aes(x = Component, y = Variance_Explained)) +
+  geom_line() +
+  geom_point() +
+  ggtitle("Scree Plot") +
+  xlab("Principal Component") +
+  ylab("Variance Explained (%)") +
+  theme_minimal()
 
 #Do many features have a notable contribution to this component
 
