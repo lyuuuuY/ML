@@ -170,14 +170,14 @@ p3 = ggplot(plot_data, aes(x = log_lambda, y = cv_scores)) +
     geom_vline(xintercept = log(cv_lasso$lambda.min), color = "red", linetype = "dashed", size = 1) +  # Optimal lambda line
     geom_vline(xintercept = log(cv_lasso$lambda.1se), color = "blue", linetype = "dashed", size = 1) + # 1 SE lambda line
     labs(
-      title = "Dependence of CV Score on log(λ)",
-      x = "log(λ)",
+      title = "Dependence of CV Score on log(lambda)",
+      x = "log(lambda)",
       y = "CV Score (Mean Squared Error)"
     ) +
-    annotate("text", x = log(cv_lasso$lambda.min), y = min(cv_lasso$cvm), 
-             label = "λ.min", color = "red", hjust = -0.2, vjust = -0.5) +
-    annotate("text", x = log(cv_lasso$lambda.1se), y = min(cv_lasso$cvm), 
-             label = "λ.1se", color = "blue", hjust = -0.2, vjust = -0.5) +
+    annotate("text", x = log(cv_lasso$lambda.min), y = min(cv_lasso$cvm)+10, 
+             label = "lambda.min", color = "red", hjust = -0.2, vjust = -0.5) +
+    annotate("text", x = log(cv_lasso$lambda.1se), y = min(cv_lasso$cvm)+20, 
+             label = "lambda.1se", color = "blue", hjust = -0.2, vjust = -0.5) +
     theme_minimal()
 ggsave("fig/p1_pic3.png", plot = p3, width = 6, height = 4, dpi = 300)
 
