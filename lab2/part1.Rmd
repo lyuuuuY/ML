@@ -49,7 +49,7 @@ computeMSE = function(model ,data, lambda = NULL){
 }
 ```
 
-## Quality of fit, prediction and model with linear regression.
+## Report the underlying probabilistic model and comment on the quality of fit and prediction and model.
 
 ```{r include=FALSE}
 data = dataProcessing(data, c("Sample", "Protein", "Moisture"))
@@ -61,6 +61,11 @@ lr = lm(Fat ~ ., data = train_data)
 trainMSE = computeMSE(lr, train_data)
 testMSE = computeMSE(lr, test_data)
 ```
+
+The probability model is:$$
+  \text{Y}_i = \beta_0 + \beta_1 \cdot \text{Channel}_{1} + \beta_2 \cdot \text{Channel}_{2} + \cdots + \beta_{100} \cdot \text{Channel}_{100} + \epsilon, \quad \epsilon \sim N(0, \sigma^2)
+$$
+
 
 ```{r echo=FALSE}
 cat("The MSE of training data is:",trainMSE,"\n")
@@ -92,19 +97,19 @@ Where lambda controls the regularization strength.
 ## interpret LASSO Coefficient Paths Plot
 
 ```{r echo=FALSE}
-cat("\nCoefficients for different lambda values:\n")
+
 plot(lasso_model, xvar = "lambda", label = TRUE)
 title(main = "LASSO Coefficient Paths")
 ```
 
 1.  This graph shows the path that the regression coefficient of each feature in the **LASSO regression model** changes with the regularization parameter $\log(\lambda)$ : the horizontal axis is $\log(\lambda)$, and the vertical axis is the value of the regression coefficient for each feature.
 
-2.  With the increase of $\lambda$ (from right to left), the regularization force is enhanced, and the coefficients of most features are compressed to 0, leaving only a few important features with non-zero coefficients, which realizes feature selection.
+2.  With the increase of $\lambda$ (from right to left), the regularization force is enhanced, and the coefficients of most features are compressed to 0, leaving only a few important features retaining non-zero coefficients, which realizes feature selection.
 
 ## model with only three features
 
 ```{r echo=FALSE}
-# 确定仅保留3个非零特征的 lambda 值
+# The value of lambda that results in only three non-zero features.
 for (i in seq_along(lasso_model$lambda)) {
   coefs <- coef(lasso_model, s = lasso_model$lambda[i])
   non_zero_count <- sum(coefs != 0) - 1  
@@ -120,14 +125,14 @@ for (i in seq_along(lasso_model$lambda)) {
 ```{r echo=FALSE}
 coefs <- coef(lasso_model, s = lambda_selected)
 coefs_selected_list <- which(coefs!=0)
-coefs_selected_list <- coefs_selected_list[-1] # 去掉截距
+coefs_selected_list <- coefs_selected_list[-1] #without intercept
 coefs_selected <- coefs[coefs_selected_list,]
 cat("The remaining features are:", "\n")
 print(coefs_selected)
 
 ```
 
-## fit Ridge regression and compare the plots from steps 3 and 4
+## Fit Ridge regression and compare the plots obtained in steps 3 and 4
 
 ```{r echo=FALSE}
 ridge_model = glmnet(x_train, y_train, alpha = 0)
@@ -144,7 +149,7 @@ As $\lambda$ increases, the coefficients of many features are compressed to 0, a
 
 Ridge coefficient path map:
 
-As $\lambda$ increases, the coefficients of all features gradually shrink, but they do not become zero.\
+As $\lambda$ increases, the coefficients of all features gradually shrink, but they do not become zero.
 
 ```{r include=FALSE}
 cv_lasso = cv.glmnet(x_train, y_train, alpha = 1)
@@ -191,13 +196,15 @@ cat("lambda = optimal lambda, mse = ", mse_optimal_lam, "\n")
 
 ## Task 5
 
-### dependence of the CV score on $\log(\lambda)$
+### Dependence of the CV score on $\log(\lambda)$
 
 ```{r echo=FALSE}
 p3
 ```
 
-(comment)
+
+Dependence of CV score on $\log(\lambda)$:
+As $\log(\lambda)$ increases, the CV scores increase.At the optimal $\log(\lambda)$, the cv score is the lowest, indicating the best performance. When the $\log(\lambda)$ value is large, the effect of the regularization term increases, forcing the model coefficients to shrink, leading to underfitting.
 
 ### Optimal $lambda$
 
@@ -535,3 +542,14 @@ To achieve minimal $E_{new}$, according to the decomposition $E_{new}$ = $E_{tra
 3. If $E_{train}$ is close to zero and $E_{hold-out}$ is not (possibly overfitting), it might be beneficial to decrease the model flexibility by tightening the regularization, decreasing the order (fewer parameters to learn), etc.
 
 (page 66-67)
+
+## What important aspect should be considered when selecting minibatches, according to the book? 
+
+1.It's important to ensure the different mini-batches are balanced and representative for the whole dataset.If we have a few different output classes and the dataset is sorted with respect to the output, the mini-batch with the first n data points would only include one class and not give a good approximation of the gradient for the full dataset.
+
+2.The mini-batches should be formed randomly. To ensure each mini-batch with representativeness, the training data should be shuffled randomly before diving into mini-batches. And after completing one epoch, the dataset should be reshuffled before another epoch.
+
+(page 125)
+
+
+
