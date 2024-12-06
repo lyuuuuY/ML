@@ -1,7 +1,7 @@
 library(tree)
 library(rpart)
 library(pROC)
-data <- read.csv("data/bank-full.csv", header = TRUE, sep = ";")
+data <- read.csv("lab2/data/bank-full.csv", header = TRUE, sep = ";")
 data <- data[,-12]
 data$y <- as.factor(data$y)
 characer_col <- c()
@@ -64,31 +64,34 @@ table(valid$y,pred_3_valid)
 trainScore = rep(0, 50)
 testScore = rep(0, 50)
 
-for (i in 2:51) {
+for (i in 2:50) {
   prunedTree <- prune.tree(bank_tree_3, best = i)
   # Predict on training and validation data
-  pred_train <- predict(prunedTree, newdata = train,type = "class")
-  pred_valid <- predict(prunedTree, newdata = valid,type = "class")
+  pred_train <- predict(prunedTree, newdata = train,type = "tree")
+  pred_valid <- predict(prunedTree, newdata = valid,type = "tree")
   
   # Compute misclassification rates
-  trainScore[i - 1] <- mean(pred_train != train$y)
-  testScore[i - 1] <- mean(pred_valid != valid$y)
+  #trainScore[i - 1] <- mean(pred_train != train$y)
+  #testScore[i - 1] <- mean(pred_valid != valid$y)
+  trainScore[i - 1] <- deviance(prunedTree)
+  testScore[i - 1] <- deviance(pred_valid)
 
 }
 
 plot(2:50, trainScore[2:50], type="b", col="red", 
-     ylim=c(0.094,0.11))
+     ylim=c(7800,11850))
 points(2:50, testScore[2:50], type="b", col="blue")
 
 # find optimal size
 
-best_size <- which(testScore==min(testScore))[2]
-optimal_tree <- prune.tree(bank_tree_3, best = best_size, method = "misclass")
+best_size_index <- which(testScore==min(testScore))
+best_size <- best_size_index + 2
+optimal_tree <- prune.tree(bank_tree_3, best = best_size)
 
 summary(optimal_tree)
 
 # task 4
-optimal_pred <- predict(optimal_tree, newdata = test, type = "class")
+optimal_pred <- predict(optimal_tree, newdata = test, type = "tree")
 
 # confusion matrix
 
