@@ -1,0 +1,153 @@
+---
+title: "Part2"
+author: "Cui Qingxuan"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+fontsize: 12pt
+geometry: margin=1in
+---
+
+# Theory
+## In neural networks, what do we mean by mini-batch and epoch?
+mini-batch:
+mini-batch is the subset of training data randomly sampled, aiming to 
+solve the problem of excessive computation time and memory space consumption 
+caused by using the entire training set to train the model and updating the 
+parameters, especially when many of them are probably relatively similar data 
+points in the training set. A mini-batch can typically contain 1, 10 or 100 data
+points, but it is recommended to set it to the nth power of 2, so that it can 
+be aligned with the memory size of the GPU.
+epoch:
+One complete pass through the training data is called an epoch. An epoch consists 
+of \( \frac{n}{nb} \) where \( n \) represents the size of train data, and \( nb \) 
+represents the batch size.
+(P124-P125)
+
+
+# Assignment 3 Support Vector Machine
+```{r, include=FALSE}
+# Lab 3 block 1 of 732A99/TDDE01/732A68 Machine Learning
+# Author: jose.m.pena@liu.se
+# Made for teaching purposes
+
+library(kernlab)
+set.seed(1234567890)
+
+data(spam)
+foo <- sample(nrow(spam))
+spam <- spam[foo,]
+tr <- spam[1:3000, ]
+va <- spam[3001:3800, ]
+trva <- spam[1:3800, ]
+te <- spam[3801:4601, ] 
+
+by <- 0.3
+err_va <- NULL
+for(i in seq(by,5,by)){
+  filter <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),C=i,scaled=FALSE)
+  mailtype <- predict(filter,va[,-58])
+  t <- table(mailtype,va[,58])
+  err_va <-c(err_va,(t[1,2]+t[2,1])/sum(t))
+}
+# trained by train dataset
+# evaluated by validation dataset
+# find the optimal C
+
+filter0 <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter0,va[,-58])
+t <- table(mailtype,va[,58])
+err0 <- (t[1,2]+t[2,1])/sum(t)
+err0
+# trained by train data
+# evaluated by validation data
+
+filter1 <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter1,te[,-58])
+t <- table(mailtype,te[,58])
+err1 <- (t[1,2]+t[2,1])/sum(t)
+err1
+# trained by train data
+# evaluated by test data
+
+filter2 <- ksvm(type~.,data=trva,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter2,te[,-58])
+t <- table(mailtype,te[,58])
+err2 <- (t[1,2]+t[2,1])/sum(t)
+err2
+
+# trained by train valid data? what's that for?
+# evaluated by test data
+
+filter3 <- ksvm(type~.,data=spam,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter3,te[,-58])
+t <- table(mailtype,te[,58])
+err3 <- (t[1,2]+t[2,1])/sum(t)
+err3
+
+# trained by whole data
+# evaluated by test data
+```
+
+```{r, eval=FALSE}
+error_rate = c(err0, err1, err2, err3)
+error_rate = round(error_rate, 3)
+table = data.frame(filter = c("filter0", "filter1", "filter2", "filter3"),
+                   error_rate = error_rate)
+
+library(knitr)
+kable(t(table), format="markdown")
+```
+
+
+
+
+## Which filter do we return to the user ? Why?
+
+Filter2 should be returned to the user. 
+***Reasons:***
+Filter2 was trained by the union of validation data and train data, evaluated by test data, with the risk that the model overfitting the distribution of hyperparameter tuning. However, filter2 has the lowest error rate of any model evaluated using a dataset that did not appear in training at all.
+As for the others: 
+Filter0 was evaluated by validation data, while validation data
+have been used in optimization. The performance of the model may be overestimated. It may “memorize” the distribution of valid data, but perform poorly on real independent test data.
+Filter1 was trained by train data and evaluated by test data. It is the standard pipeline, but the error rate is higher than filter2.
+Filter3 was trained by the whole data set, which contains the test data set. After that, 
+the model have adapted the test data in some degree. Thus, it would affects the accuracy of model evaluation.
+
+## What is the estimate of the generalization error of the filter returned to the user? Why?
+Error2 should be returned to the user.
+We used the filter2, of course we should return the corresponding error rate......
+
+## 
+
+```{r, include=FALSE}
+# 3. Implementation of SVM predictions.
+# the size of features is 57
+pred_vec = c()
+sigma = 0.05
+support_vector_indices = alphaindex(filter3)[[1]]
+support_vector = tr[support_vector_indices, -58]
+coef = coef(filter3)[[1]]
+intercept = - b(filter3)
+x = te[, -58]
+for(i in 1:10){ # We produce predictions for just the first 10 points in the dataset.
+  k2 = 0
+  for(j in 1:length(support_vector_indices)){
+    distance = sum((x[i,] - support_vector[j,])** 2) 
+    rbf = exp(-distance/(2 * sigma^2))
+    k2 = k2 + rbf * coef[j]
+    if(j %% 10 == 0){
+      print(distance)
+      print(rbf)
+    }
+  }
+  pred = k2 + intercept
+  pred_vec=c(pred_vec, pred) # Your code here)
+}
+
+predict(filter3,spam[1:10,-58], type = "decision")
+```
+
