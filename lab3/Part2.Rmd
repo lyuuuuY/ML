@@ -98,6 +98,7 @@ err3
 # But I'm not sure with that.
 ```
 
+
 ```{r, eval=FALSE}
 error_rate = c(err0, err1, err2, err3)
 error_rate = round(error_rate, 3)
@@ -164,4 +165,125 @@ kable(t(table_pred), format="markdown")
 
 ```
 
+
+# Assignment 4
+
+## Task 1
+```{r ,include=FALSE}
+library(neuralnet)
+set.seed(1234567890)
+Var <- runif(500, 0, 10)
+mydata <- data.frame(Var, Sin=sin(Var))
+tr <- mydata[1:25,] # Training
+te <- mydata[26:500,] # Test
+# Random initialization of the weights in the interval [-1, 1]
+n_input <- 1        
+n_hidden <- 10      
+n_output <- 1      
+
+weights_input_to_hidden <- n_input * n_hidden
+weights_hidden_to_output <- n_hidden * n_output
+n_weights <- weights_input_to_hidden + weights_hidden_to_output
+bias_hidden <- n_hidden  
+bias_output <- n_output
+n_weights <- n_weights + bias_hidden + bias_output
+winit <- runif(n_weights, min = -1, max = 1)
+
+nn <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = "logistic", linear.output = TRUE,
+                startweights = list(
+                  matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                  matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                         nrow = n_hidden, ncol = n_output)
+                ))
+# Plot of the training data (black), test data (blue), and predictions (red)
+plot(tr, cex=2)
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn,te), col="red", cex=1)
+# Comment your results
+```
+The model predictions are very good, except for a small deviation from var=5 to var=7, which is comparable to the sin values of the test set.
+
+## Task 2
+
+```{r, eval=FALSE}
+# task 2
+activation_functions <- list(
+      linear = function(x) x,
+      relu = function(x) ifelse(x > 0, x, 0),
+      softplus = function(x) log(1 + exp(x))
+    )
+## linear
+nn_lin <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = activation_functions[["linear"]],
+               linear.output = TRUE,startweights = list(
+                 matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                 matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                        nrow = n_hidden, ncol = n_output)
+               ))
+
+plot(tr, cex=2)
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn_lin,te), col="red", cex=1)
+
+## relu
+
+nn_relu <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = activation_functions[["relu"]],
+                    linear.output = TRUE,startweights = list(
+                      matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                      matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                             nrow = n_hidden, ncol = n_output)
+                    ))
+plot(tr, cex=2)
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn_relu,te), col="red", cex=1)
+## softplus
+
+nn_softplus <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = activation_functions[["softplus"]],
+                     linear.output = TRUE,startweights = list(
+                       matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                       matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                              nrow = n_hidden, ncol = n_output)
+                     ))
+
+plot(tr, cex=2)
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn_softplus,te), col="red", cex=1)
+
+## comment your results
+```
+***Linear function:***
+The results of the linear function show that it cannot be used as an activation function at all, and the output of the neural network is not properly and appropriately expressed, resulting in a final output that is far from the labels of the test set and a distribution that does not match at all.
+***Relu function:***
+The Relu function performs well up to var=4, and after var=4, like the linear function, it is completely unusable as an activation function, i.e., it does not fit at all to the test set labeling distribution.
+***Softplus function:***
+The softplus function basically matches the curve of the test set labeling.
+
+
+## Task 3
+```{r, eval=FALSE}
+new_Var <- runif(500, 0, 50)
+new_data <- data.frame(Var = new_Var, Sin = sin(new_Var))
+
+new_predictions <- predict(nn, new_data)
+
+plot(new_data$Var, new_data$Sin, col = "blue", main = "Neural Network Predictions on [0, 50]",
+     xlab = "x", ylab = "sin(x)", cex = 1, pch = 16,ylim=c(-4,1.5))
+points(new_data$Var, predict(nn, new_data), col = "red", cex = 1, pch = 16)
+legend("topright", legend = c("True Values", "Predictions"),
+       col = c("blue", "red"), pch = 16)
+
+```
+Apparently, the model cannot predict based on the data points which are out of the scale [0,10], while it has good performance on the data points who fall in this interval although they have not appeared before.
+
+## Task 4: In question (3), the predictions seem to converge to some value. Explain why this happens.
+```{r, eval=FALSE}
+weights = nn$weights
+weights = weights[[1]]
+
+hidden_weights = weights[[1]][1,]
+output_weights = weights[[1]][2,]
+hidden_bias = weights[[2]][1:10]
+output_bias = weights[[2]][length(weights[[2]])]
+
+
+```
 
