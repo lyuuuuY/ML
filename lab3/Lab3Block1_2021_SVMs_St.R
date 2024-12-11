@@ -54,16 +54,30 @@ err3
 
 # 3. Implementation of SVM predictions.
 
-sv<-alphaindex(filter3)[[1]]
-co<-coef(filter3)[[1]]
-inte<- - b(filter3)
-k<-NULL
+pred_vec = c()
+sigma = 0.05
+support_vector_indices = alphaindex(filter3)[[1]]
+support_vector = spam[support_vector_indices, -58]
+sv_labels = spam[support_vector_indices, 58]
+sv_labels = ifelse(sv_labels == "spam", -1, 1)
+
+coef = coef(filter3)[[1]]
+intercept = - b(filter3)
+x = spam[, -58]
 for(i in 1:10){ # We produce predictions for just the first 10 points in the dataset.
-  k2<-NULL
-  for(j in 1:length(sv)){
-    k2<- # Your code here
+  k2 = 0
+  for(j in 1:length(support_vector_indices)){
+    rbf = exp(-sum((x[i,] - support_vector[j,])^2)/(2 * sigma^2))
+    k2 = k2 + rbf * coef[j]
   }
-  k<-c(k, # Your code here)
+  pred_vec=c(pred_vec, k2 + intercept)
 }
-k
-predict(filter3,spam[1:10,-58], type = "decision")
+pred_vec_label = ifelse(pred_vec < 0, -1, 1)
+
+
+pred_func = as.vector(predict(filter3,spam[1:10,-58], type = "decision"))
+pred_func_label = ifelse(pred_func < 0, -1, 1)
+print(pred_vec)
+print(pred_func)
+
+

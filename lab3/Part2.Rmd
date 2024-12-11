@@ -29,7 +29,7 @@ represents the batch size.
 
 
 # Assignment 3 Support Vector Machine
-```{r, include=FALSE}
+```{r, eval=FALSE}
 # Lab 3 block 1 of 732A99/TDDE01/732A68 Machine Learning
 # Author: jose.m.pena@liu.se
 # Made for teaching purposes
@@ -124,33 +124,44 @@ Error2 should be returned to the user.
 We used the filter2, because it perform better on new dataset among the models who were evaluated on new dataset.
 Discussion required there.
 
-## Question 3
+## Implementation of SVM predictions.
 
-```{r, include=FALSE}
+```{r, eval=FALSE}
 # 3. Implementation of SVM predictions.
 # the size of features is 57
 pred_vec = c()
 sigma = 0.05
 support_vector_indices = alphaindex(filter3)[[1]]
-support_vector = tr[support_vector_indices, -58]
+support_vector = spam[support_vector_indices, -58]
+sv_labels = spam[support_vector_indices, 58]
+sv_labels = ifelse(sv_labels == "spam", -1, 1)
+
 coef = coef(filter3)[[1]]
 intercept = - b(filter3)
-x = te[, -58]
+x = spam[, -58]
 for(i in 1:10){ # We produce predictions for just the first 10 points in the dataset.
   k2 = 0
   for(j in 1:length(support_vector_indices)){
-    distance = sum((x[i,] - support_vector[j,])** 2) 
-    rbf = exp(-distance/(2 * sigma^2))
+    rbf = exp(-sum((x[i,] - support_vector[j,])^2)/(2 * sigma^2))
     k2 = k2 + rbf * coef[j]
-    if(j %% 10 == 0){
-      print(distance)
-      print(rbf)
-    }
   }
-  pred = k2 + intercept
-  pred_vec=c(pred_vec, pred) # Your code here)
+  pred_vec=c(pred_vec, k2 + intercept)
 }
+pred_vec_label = ifelse(pred_vec < 0, -1, 1)
 
-predict(filter3,spam[1:10,-58], type = "decision")
+
+pred_func = as.vector(predict(filter3,spam[1:10,-58], type = "decision"))
+pred_func_label = ifelse(pred_func < 0, -1, 1)
 ```
+
+Based on the table below, we can see the values and labels from manual prediction and function based prediction
+
+```{r, eval=FALSE}
+table_pred = data.frame(round(pred_vec, 3), pred_vec_label, round(pred_func, 3), pred_func_label)
+colnames(table_pred) = c("manual prediction", "manual prediction label", "prediction value", "prediction label")
+row.names(table_pred) = paste0("data point", as.character(1:10))
+kable(t(table_pred), format="markdown")
+
+```
+
 
