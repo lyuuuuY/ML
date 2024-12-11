@@ -53,15 +53,17 @@ for(i in seq(by,5,by)){
   t <- table(mailtype,va[,58])
   err_va <-c(err_va,(t[1,2]+t[2,1])/sum(t))
 }
+# filter
 # trained by train dataset
-# evaluated by validation dataset
-# find the optimal C
+# find the optimal C on validation dataset
+
 
 filter0 <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
 mailtype <- predict(filter0,va[,-58])
 t <- table(mailtype,va[,58])
 err0 <- (t[1,2]+t[2,1])/sum(t)
 err0
+# filter0
 # trained by train data
 # evaluated by validation data
 
@@ -70,6 +72,7 @@ mailtype <- predict(filter1,te[,-58])
 t <- table(mailtype,te[,58])
 err1 <- (t[1,2]+t[2,1])/sum(t)
 err1
+# filter1
 # trained by train data
 # evaluated by test data
 
@@ -78,7 +81,7 @@ mailtype <- predict(filter2,te[,-58])
 t <- table(mailtype,te[,58])
 err2 <- (t[1,2]+t[2,1])/sum(t)
 err2
-
+# filter2
 # trained by train valid data? what's that for?
 # evaluated by test data
 
@@ -87,9 +90,12 @@ mailtype <- predict(filter3,te[,-58])
 t <- table(mailtype,te[,58])
 err3 <- (t[1,2]+t[2,1])/sum(t)
 err3
-
+# filter3
 # trained by whole data
 # evaluated by test data
+
+# I chose filter2 and its error 'cause the lower misclassification error in test data.
+# But I'm not sure with that.
 ```
 
 ```{r, eval=FALSE}
@@ -102,11 +108,7 @@ library(knitr)
 kable(t(table), format="markdown")
 ```
 
-
-
-
 ## Which filter do we return to the user ? Why?
-
 Filter2 should be returned to the user. 
 ***Reasons:***
 Filter2 was trained by the union of validation data and train data, evaluated by test data, with the risk that the model overfitting the distribution of hyperparameter tuning. However, filter2 has the lowest error rate of any model evaluated using a dataset that did not appear in training at all.
@@ -119,9 +121,10 @@ the model have adapted the test data in some degree. Thus, it would affects the 
 
 ## What is the estimate of the generalization error of the filter returned to the user? Why?
 Error2 should be returned to the user.
-We used the filter2, of course we should return the corresponding error rate......
+We used the filter2, because it perform better on new dataset among the models who were evaluated on new dataset.
+Discussion required there.
 
-## 
+## Question 3
 
 ```{r, include=FALSE}
 # 3. Implementation of SVM predictions.
