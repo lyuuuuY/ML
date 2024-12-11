@@ -154,11 +154,11 @@ pred_func = as.vector(predict(filter3,spam[1:10,-58], type = "decision"))
 pred_func_label = ifelse(pred_func < 0, -1, 1)
 ```
 
-Based on the table below, we can see the values and labels from manual prediction and function based prediction
+Based on the table below, we can see the values and labels from manual prediction and function based prediction. Except the first data point, the labels are same.
 
 ```{r, eval=FALSE}
-table_pred = data.frame(round(pred_vec, 3), pred_vec_label, round(pred_func, 3), pred_func_label)
-colnames(table_pred) = c("manual prediction", "manual prediction label", "prediction value", "prediction label")
+table_pred = data.frame(pred_vec_label, pred_func_label)
+colnames(table_pred) = c("manual prediction label", "prediction label")
 row.names(table_pred) = paste0("data point", as.character(1:10))
 kable(t(table_pred), format="markdown")
 
