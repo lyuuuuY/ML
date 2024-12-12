@@ -15,6 +15,16 @@ editor_options:
 
 # Theory
 
+## In the literature, it is common to see a formulation of SVMs that makes use of a hyper-parameter C. What is the purpose of this hyperparameter?
+
+In SVM, the hyperparameter \(C\) can be expressed as $C = \frac{1}{2\lambda}$, 
+where \(\lambda\) is the \(L_2\)-regularization parameter in the primal problem, 
+used to determine the upper bound of the Lagrange multipliers, thereby constraining the model's complexity.
+As \(C\) increases, \(\lambda\) decreases, allowing for a larger \(\theta\).
+ This results in a narrower decision boundary and subsequently reduces the number of support vectors.
+
+(P209-P210, P215)
+
 ## In neural networks, what do we mean by mini-batch and epoch?
 
 mini-batch: mini-batch is the subset of training data randomly sampled,
@@ -27,11 +37,13 @@ recommended to set it to the nth power of 2, so that it can be aligned
 with the memory size of the GPU. epoch: One complete pass through the
 training data is called an epoch. An epoch consists of $\frac{n}{nb}$
 where $n$ represents the size of train data, and $nb$ represents the
-batch size. (P124-P125)
+batch size.
+
+ (P124-P125)
 
 # Assignment 3 Support Vector Machine
 
-```{r include=FALSE}
+```{r, include=FALSE}
 # Lab 3 block 1 of 732A99/TDDE01/732A68 Machine Learning
 # Author: jose.m.pena@liu.se
 # Made for teaching purposes
@@ -100,7 +112,7 @@ err3
 # But I'm not sure with that.
 ```
 
-```{r echo=FALSE}
+```{r include=FALSE}
 error_rate = c(err0, err1, err2, err3)
 error_rate = round(error_rate, 3)
 table = data.frame(filter = c("filter0", "filter1", "filter2", "filter3"),
@@ -114,7 +126,7 @@ kable(t(table), format="markdown")
 
 Filter3 should be returned to the user.
 
-col
+***Reasons:***
 
 Filter3 is trained using the entire dataset (`spam`), which includes the
 training set, validation set, and test set. By leveraging all available data,Filter3
@@ -167,12 +179,11 @@ Based on the table below, we can see the values and labels from manual
 prediction and function based prediction. Except the first data point,
 the labels are same.
 
-```{r, eval=FALSE}
+```{r, include=FALSE}
 table_pred = data.frame(pred_vec_label, pred_func_label)
 colnames(table_pred) = c("manual prediction label", "prediction label")
 row.names(table_pred) = paste0("data point", as.character(1:10))
 kable(t(table_pred), format="markdown")
-
 ```
 
 # Assignment 4
@@ -308,14 +319,18 @@ points who fall in this interval although they have not appeared before.
 
 ## Task 4: In question (3), the predictions seem to converge to some value. Explain why this happens.
 
-```{r echo=FALSE}
+```{r include=FALSE}
 weights = nn$weights
 weights = weights[[1]]
 
 hidden_weights = weights[[1]][1,]
-output_weights = weights[[1]][2,]
-hidden_bias = weights[[2]][1:10]
+hidden_bias = weights[[1]][2,]
+output_weights = weights[[2]][1:10]
 output_bias = weights[[2]][length(weights[[2]])]
 
+x = 10
+hidden_output = x * hidden_weights + hidden_bias
+activate_output = pmax(0, hidden_weights)
 
+output = t(output_weights) %*% activate_output + output_bias
 ```
