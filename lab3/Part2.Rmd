@@ -112,33 +112,9 @@ kable(t(table), format="markdown")
 
 ## Which filter do we return to the user ? Why?
 
-Filter2 should be returned to the user.
-
-***Reasons:***
-
-Filter2 was trained by the union of validation data and train data,
-evaluated by test data, with the risk that the model overfitting the
-distribution of hyperparameter tuning. However, filter2 has the lowest
-error rate of any model evaluated using a dataset that did not appear in
-training at all.
-
-As for the others: Filter0 was evaluated by validation data, while
-validation data have been used in optimization. The performance of the
-model may be overestimated. It may “memorize” the distribution of valid
-data, but perform poorly on real independent test data.
-
-Filter1 was trained by train data and evaluated by test data. It is the
-standard pipeline, but the error rate is higher than filter2.
-
-Filter3 was trained by the whole data set, which contains the test data
-set. After that, the model have adapted the test data in some degree.
-Thus, it would affects the accuracy of model evaluation.
-
-Answer 2:
-
 Filter3 should be returned to the user.
 
-***Reasons:***
+col
 
 Filter3 is trained using the entire dataset (`spam`), which includes the
 training set, validation set, and test set. By leveraging all available data,Filter3
@@ -150,13 +126,12 @@ Using all available data to train this model is the optimal choice.
 
 ## What is the estimate of the generalization error of the filter returned to the user? Why?
 
-Error2 should be returned to the user. We used the filter2, because it
-perform better on new dataset among the models who were evaluated on new
-dataset. Discussion required there.
+The error rate of filter2 should be returned to the user.
 
-Answer 2:
+***Reasons:***
 
-This ensures that the evaluation is unbiased and reflects the model's ability to generalize to unseen data. Filter2's error is a more accurate estimate of the generalization error because the test set remains independent and has not been contaminated by the training process.
+This ensures that the evaluation is unbiased and reflects the model's ability to generalize to unseen data. 
+Filter2's error is a more accurate estimate of the generalization error because the test set remains independent and has not been contaminated by the training process.
 
 ## Implementation of SVM predictions.
 
@@ -292,15 +267,23 @@ points(te[,1],predict(nn_softplus,te), col="red", cex=1)
 ## comment your results
 ```
 
-***Linear function:*** The results of the linear function show that it
+***Linear function:*** 
+
+The results of the linear function show that it
 cannot be used as an activation function at all, and the output of the
 neural network is not properly and appropriately expressed, resulting in
 a final output that is far from the labels of the test set and a
-distribution that does not match at all. ***Relu function:*** The Relu
-function performs well up to var=4, and after var=4, like the linear
+distribution that does not match at all.
+
+***Relu function:*** 
+
+The Relu function performs well up to var=4, and after var=4, like the linear
 function, it is completely unusable as an activation function, i.e., it
-does not fit at all to the test set labeling distribution. ***Softplus
-function:*** The softplus function basically matches the curve of the
+does not fit at all to the test set labeling distribution. 
+
+***Softplus function:***
+
+The softplus function basically matches the curve of the
 test set labeling.
 
 ## Task 3
