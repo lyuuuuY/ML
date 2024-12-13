@@ -322,15 +322,25 @@ points who fall in this interval although they have not appeared before.
 ```{r include=FALSE}
 weights = nn$weights
 weights = weights[[1]]
-
-hidden_weights = weights[[1]][1,]
-hidden_bias = weights[[1]][2,]
-output_weights = weights[[2]][1:10]
-output_bias = weights[[2]][length(weights[[2]])]
-
-x = 10
-hidden_output = x * hidden_weights + hidden_bias
-activate_output = pmax(0, hidden_weights)
-
-output = t(output_weights) %*% activate_output + output_bias
+hidden_bias = weights[[1]][1,]
+hidden_weights = weights[[1]][2,]
+output_bias = weights[[2]][1]
+output_weights = weights[[2]][2:11]
+for(x in 1:50){
+  print(x)
+  x = x * hidden_weights + hidden_bias
+  x = 1 / (1 + exp(-x))
+  print("----------------------------------------------")
+  print(sort(x, decreasing = TRUE)[1:5])
+  output = t(output_weights) %*% x + output_bias
+}
 ```
+
+
+```{r}
+predict = compute(nn, as.data.frame(rep(50, 10)))
+predict$net.result
+```
+
+
+
