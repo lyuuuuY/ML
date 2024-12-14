@@ -112,7 +112,7 @@ err3
 # But I'm not sure with that.
 ```
 
-```{r include=FALSE}
+```{r echo=FALSE}
 error_rate = c(err0, err1, err2, err3)
 error_rate = round(error_rate, 3)
 table = data.frame(filter = c("filter0", "filter1", "filter2", "filter3"),
@@ -143,6 +143,7 @@ The error rate of filter2 should be returned to the user.
 ***Reasons:***
 
 This ensures that the evaluation is unbiased and reflects the model's ability to generalize to unseen data. 
+
 Filter2's error is a more accurate estimate of the generalization error because the test set remains independent and has not been contaminated by the training process.
 
 ## Implementation of SVM predictions.
@@ -179,7 +180,7 @@ Based on the table below, we can see the values and labels from manual
 prediction and function based prediction. Except the first data point,
 the labels are same.
 
-```{r, include=FALSE}
+```{r echo=FALSE}
 table_pred = data.frame(pred_vec_label, pred_func_label)
 colnames(table_pred) = c("manual prediction label", "prediction label")
 row.names(table_pred) = paste0("data point", as.character(1:10))
@@ -220,19 +221,22 @@ nn <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = "logistic", linear.
 
 # Comment your results
 ```
-```{r echo=FALSE}
-# Plot of the training data (black), test data (blue), and predictions (red)
-plot(tr, cex=2)
-points(te, col = "blue", cex=1)
-points(te[,1],predict(nn,te), col="red", cex=1)
-```
 
-The model predictions are very good, except for a small deviation from
+\begin{figure}[H]
+  \begin{minipage}{0.4\textwidth}
+   The model predictions are very good, except for a small deviation from
 var=5 to var=7, which is comparable to the sin values of the test set.
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=0.8\textwidth]{./fig/part4task1.png}
+  \end{minipage}
+  \caption{A.4.1: sigmoid}
+\end{figure}
 
 ## Task 2
 
-```{r echo=FALSE}
+```{r include=FALSE}
 # task 2
 activation_functions <- list(
       linear = function(x) x,
@@ -278,28 +282,64 @@ points(te[,1],predict(nn_softplus,te), col="red", cex=1)
 ## comment your results
 ```
 
-***Linear function:*** 
+```{r echo=FALSE, fig.cap="A.4.2: NN with different activation function", fig.show='hold', out.width="33%"}
+library(knitr)
+include_graphics(c("./fig/lin.png", 
+                   "./fig/relu.png",
+                   "./fig/softplus.png"))
+```
 
-The results of the linear function show that it
-cannot be used as an activation function at all, and the output of the
-neural network is not properly and appropriately expressed, resulting in
-a final output that is far from the labels of the test set and a
-distribution that does not match at all.
+***Linear function:***
 
-***Relu function:*** 
+1.  The Linear activation function is unable to introduce nonlinear
+    transformations, resulting in the entire neural network can only
+    behave as a simple linear mapping, equivalent to a single-layer
+    model.
 
-The Relu function performs well up to var=4, and after var=4, like the linear
-function, it is completely unusable as an activation function, i.e., it
-does not fit at all to the test set labeling distribution. 
+2.  Due to the lack of nonlinear expression ability, the model can not
+    capture the periodic characteristics of the sine function, and
+    finally fits to an approximate horizontal trend line.
+
+***ReLU function:***
+
+The ReLU activation function is defined as: $h_2(x) = \max(0, x)$, In
+the early stage of network training, because the weight is not stable,
+the input value to ReLU will fluctuate back and forth in the positive
+and negative interval, so that some ReLU units will be activated in the
+positive interval (output linear segment), and some will be cut off in
+the negative interval (output 0). This state causes the network to
+generate nonlinear feature transformation and improves the fitting
+ability of the model.
+
+However, at the later stage of training, if the parameters of some
+layers continue to learn and adjust, the input through this layer will
+fall into the positive semi-axis of the ReLU most of the time (that is,
+the x\$\>\$0 region). In this case, the output of these ReLU units
+approaches the linear mapping state of y=x, and the layer's
+transformation of the input features no longer has the nonlinear
+characteristics of the previous layer. When most of the active elements
+of the network enter this single linear interval, the effective
+nonlinearity of the whole network will decrease significantly, and even
+approximate to a roughly linear mapping. This will cause the model to
+show similar linear model behavior at the later stage of training, and
+it is difficult to further improve the fitting ability of complex tasks.
 
 ***Softplus function:***
 
-The softplus function basically matches the curve of the
-test set labeling.
+The softplus function basically matches the curve of the test set
+labeling.
 
-## Task 3
+Unlike ReLU, Softplus is smooth and differentiable everywhere, including
+at x=0. This property makes it more mathematically "well-behaved" in
+optimization tasks.
 
-```{r echo=FALSE}
+Softplus provides a small but non-zero gradient for x\$\<\$0, allowing
+weights to update. Softplus offers controlled gradient flow, making it
+more stable in networks that require smooth transitions.
+
+## Task 3 and 4: comment and explain the convergence
+
+```{r include=FALSE}
 new_Var <- runif(500, 0, 50)
 new_data <- data.frame(Var = new_Var, Sin = sin(new_Var))
 
@@ -313,34 +353,189 @@ legend("topright", legend = c("True Values", "Predictions"),
 
 ```
 
-Apparently, the model cannot predict based on the data points which are
-out of the scale [0,10], while it has good performance on the data
-points who fall in this interval although they have not appeared before.
-
-## Task 4: In question (3), the predictions seem to converge to some value. Explain why this happens.
-
 ```{r include=FALSE}
-weights = nn$weights
-weights = weights[[1]]
-hidden_bias = weights[[1]][1,]
-hidden_weights = weights[[1]][2,]
-output_bias = weights[[2]][1]
-output_weights = weights[[2]][2:11]
-for(x in 1:50){
-  print(x)
-  x = x * hidden_weights + hidden_bias
-  x = 1 / (1 + exp(-x))
-  print("----------------------------------------------")
-  print(sort(x, decreasing = TRUE)[1:5])
-  output = t(output_weights) %*% x + output_bias
+nn_w <- nn$weights
+w1 <- nn_w[[1]][[1]]
+
+b_hidden <- w1[1, ]    # 第一行是偏置，共10个隐藏神经元的偏置
+w_hidden <- w1[2, ]    # 第二行是输入对应的权重
+
+sigmoid <- function(x) {
+  1 / (1 + exp(-x))
 }
+
+x <- 40
+
+z_hidden <- x * w_hidden + b_hidden
+a_hidden <- sigmoid(z_hidden)  
+
+w2_mat <- nn_w[[1]][[2]]
+b_output <- w2_mat[1, 1]      # 第一行是输出层偏置
+w_output <- w2_mat[2:11, 1]   # 后面10行是隐藏层到输出的权重
+
+output <- sum(a_hidden * w_output) + b_output
+#print(output)
+
+#cat("The value in hidden layer after the sigmoid function is: ","\n", a_hidden)
 ```
 
+\begin{figure}[H]
+  \begin{minipage}{0.4\textwidth}
+  
+To train neural networks, the data used comes from
+0 to 10. Therefore, the network can only learn and fit sinusoidal function properties within this range.When the Sigmoid activation function is used, the output of the network is limited to the range (0,1).
+  
+If the input x equals to 20, the value in hidden layer after the sigmoid function is:  
 
-```{r}
-predict = compute(nn, as.data.frame(rep(50, 10)))
-predict$net.result
+1 1 1 1.018783e-12 1.241817e-10 9.302363e-08 0.002334578 5.432176e-14 1 8.941231e-09
+
+It can be seen that when the input is greater than 10, the output form of the hidden layer after conversion is: the first, second, third and ninth data are infinitely close to 1, while the rest are infinitely close to 0, which leads to the subsequent output being a fixed linear transformation.
+
+Looking at the weights of the output layer, we can see that the values of the first, second, third, and ninth weights are -1.7121097, -0.9561984, 0.1362801, -1.3999957, and the value of bias is 0.8266328. It is calculated that it will eventually converge at -3.105391
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=0.8\textwidth]{./fig/050.png}
+  \end{minipage}
+  \caption{A.4.3: New NN plot with 500 points in the interval [0;50]}
+\end{figure}
+
+## Task 5: Explain the prediction of x by sinx
+
+\begin{figure}[H]
+  \begin{minipage}{0.4\textwidth}
+The sine function is periodic, meaning the same $sin(x)$ value can correspond to multiple $x$ values.
+
+The neural network has only one output neuron, which makes it inherently unable to produce multiple outputs for the same input. Instead, it settles on approximating one of the valid $x$ values for a given $sin(x)$.
+
+From the graph, we can see that the model chooses to predict the smallest possible $x$ that corresponds to each $sin(x)$ value. This is likely because the training process minimizes the MSE loss, which encourages predictions to converge toward one specific solution rather than splitting across multiple possibilities.
+
+  \end{minipage}
+  \hfill
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=0.8\textwidth]{./fig/inver.png}
+  \end{minipage}
+  \caption{A.4.4: Neural Network Predictions: sin(x) -> x}
+\end{figure}
+
+# Appendix 
+
+## Code for Assignment 4
+```{r, echo=TRUE, eval=FALSE}
+library(neuralnet)
+set.seed(1234567890)
+Var <- runif(500, 0, 10)
+mydata <- data.frame(Var, Sin=sin(Var))
+tr <- mydata[1:25,] # Training
+te <- mydata[26:500,] # Test
+# Random initialization of the weights in the interval [-1, 1]
+n_input <- 1        
+n_hidden <- 10      
+n_output <- 1      
+
+weights_input_to_hidden <- n_input * n_hidden
+weights_hidden_to_output <- n_hidden * n_output
+n_weights <- weights_input_to_hidden + weights_hidden_to_output
+bias_hidden <- n_hidden  
+bias_output <- n_output
+n_weights <- n_weights + bias_hidden + bias_output
+winit <- runif(n_weights, min = -1, max = 1)
+
+nn <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = "logistic", linear.output = TRUE,
+                startweights = list(
+                  matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                  matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                         nrow = n_hidden, ncol = n_output)
+                ))
+    # Plot of the training data (black), test data (blue), and predictions (red)
+    plot(tr, cex=2)
+    points(te, col = "blue", cex=1)
+    points(te[,1],predict(nn,te), col="red", cex=1)
+    
+    # Comment your results
+    
+# task 2
+    
+activation_functions <- list(
+      linear = function(x) x,
+      relu = function(x) ifelse(x > 0, x, 0),
+      softplus = function(x) log(1 + exp(x))
+    )
+## linear
+nn_lin <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = activation_functions[["linear"]],
+               linear.output = TRUE,startweights = list(
+                 matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                 matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                        nrow = n_hidden, ncol = n_output)
+               ))
+plot(tr, cex=2)
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn_lin,te), col="red", cex=1)
+
+## relu
+
+nn_relu <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = activation_functions[["relu"]],
+                    linear.output = TRUE,startweights = list(
+                      matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                      matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                             nrow = n_hidden, ncol = n_output)
+                    ))
+plot(tr, cex=2)
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn_relu,te), col="red", cex=1)
+
+## softplus
+
+nn_softplus <- neuralnet(Sin ~ Var, data = tr, hidden = 10, act.fct = activation_functions[["softplus"]],
+                     linear.output = TRUE,startweights = list(
+                       matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                       matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                              nrow = n_hidden, ncol = n_output)
+                     ))
+plot(tr, cex=2)
+points(te, col = "blue", cex=1)
+points(te[,1],predict(nn_softplus,te), col="red", cex=1)
+
+## comment your results
+
+# task 3
+
+new_Var <- runif(500, 0, 50)
+new_data <- data.frame(Var = new_Var, Sin = sin(new_Var))
+
+new_predictions <- predict(nn, new_data)
+
+plot(new_data$Var, new_data$Sin, col = "blue", main = "Neural Network Predictions on [0, 50]",
+     xlab = "x", ylab = "sin(x)", cex = 1, pch = 16,ylim=c(-4,1.5))
+points(new_data$Var, predict(nn, new_data), col = "red", cex = 1, pch = 16)
+legend("topright", legend = c("True Values", "Predictions"),
+       col = c("blue", "red"), pch = 16)
+
+
+# task 4
+
+weights <- nn$weights
+print(weights)
+
+# comment
+
+# task 5
+
+Var_inv <- runif(500, 0, 10)  
+Sin_inver <- sin(Var_inv)           
+data_inver <- data.frame(Sin_inver, Var_inv)  
+
+nn_inver <- neuralnet(Sin_inver ~ Var_inv, data = data_inver, hidden = 10, act.fct = "logistic", linear.output = TRUE,
+                startweights = list(
+                  matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
+                  matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
+                         nrow = n_hidden, ncol = n_output)
+                ))
+predictions_inver <- predict(nn_inver, data_inver)
+
+plot(data_inver$Sin_inver, data_inver$Var_inv, col = "blue", main = "Neural Network Predictions: sin(x) -> x",
+     xlab = "sin(x)", ylab = "x", cex = 1, pch = 16,ylim = c(-1,10))
+points(data_inver$Sin_inver, predictions_inver, col = "red", cex = 1, pch = 16)
+
 ```
-
-
 
