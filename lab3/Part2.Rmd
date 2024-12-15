@@ -15,6 +15,17 @@ editor_options:
 
 # Theory
 
+## What is the kernel trick?
+
+1.A kernel $k(x,x')$ is any function that takes two arguments $x$ and $x'$ from the same space and returns a scalar.
+2.Kernel trick: If $x$ enters the model as $\phi(\mathbf{x})^\top \phi(\mathbf{x}')$ only, we can choose a kernel $k(x,x')$ instead of choosing $\phi(x)$.It allows us to compute the effect of a high-dimensional feature using a kernel function, rather than explicit mapping to the higher-dimension space.
+
+(P194-196)
+
+# Assignment2 Kernel Methods
+
+
+
 ## In the literature, it is common to see a formulation of SVMs that makes use of a hyper-parameter C. What is the purpose of this hyperparameter?
 
 In SVM, the hyperparameter \(C\) can be expressed as $C = \frac{1}{2\lambda}$, 
