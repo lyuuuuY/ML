@@ -34,9 +34,11 @@ model and updating the parameters, especially when many of them are
 probably relatively similar data points in the training set. A
 mini-batch can typically contain 1, 10 or 100 data points, but it is
 recommended to set it to the nth power of 2, so that it can be aligned
-with the memory size of the GPU. epoch: One complete pass through the
-training data is called an epoch. An epoch consists of $\frac{n}{nb}$
-where $n$ represents the size of train data, and $nb$ represents the
+with the memory size of the GPU. 
+
+epoch: One complete pass through the
+training data is called an epoch. An epoch consists of $\frac{n}{n_b}$
+where $n$ represents the size of train data, and $n_b$ represents the
 batch size.
 
  (P124-P125)
@@ -107,9 +109,6 @@ err3
 # filter3
 # trained by whole data
 # evaluated by test data
-
-# I chose filter2 and its error 'cause the lower misclassification error in test data.
-# But I'm not sure with that.
 ```
 
 ```{r echo=FALSE}
@@ -419,6 +418,99 @@ From the graph, we can see that the model chooses to predict the smallest possib
 \end{figure}
 
 # Appendix 
+
+## Code for assignment 3
+
+```{r,  echo=TRUE, eval=FALSE}
+# Lab 3 block 1 of 732A99/TDDE01/732A68 Machine Learning
+# Author: jose.m.pena@liu.se
+# Made for teaching purposes
+
+library(kernlab)
+set.seed(1234567890)
+
+data(spam)
+foo <- sample(nrow(spam))
+spam <- spam[foo,]
+tr <- spam[1:3000, ]
+va <- spam[3001:3800, ]
+trva <- spam[1:3800, ]
+te <- spam[3801:4601, ] 
+
+by <- 0.3
+err_va <- NULL
+for(i in seq(by,5,by)){
+  filter <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),C=i,scaled=FALSE)
+  mailtype <- predict(filter,va[,-58])
+  t <- table(mailtype,va[,58])
+  err_va <-c(err_va,(t[1,2]+t[2,1])/sum(t))
+}
+# filter
+# trained by train dataset
+# find the optimal C on validation dataset
+
+
+filter0 <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter0,va[,-58])
+t <- table(mailtype,va[,58])
+err0 <- (t[1,2]+t[2,1])/sum(t)
+err0
+# filter0
+# trained by train data
+# evaluated by validation data
+
+filter1 <- ksvm(type~.,data=tr,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter1,te[,-58])
+t <- table(mailtype,te[,58])
+err1 <- (t[1,2]+t[2,1])/sum(t)
+err1
+# filter1
+# trained by train data
+# evaluated by test data
+
+filter2 <- ksvm(type~.,data=trva,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter2,te[,-58])
+t <- table(mailtype,te[,58])
+err2 <- (t[1,2]+t[2,1])/sum(t)
+err2
+# filter2
+# trained by train valid data? what's that for?
+# evaluated by test data
+
+filter3 <- ksvm(type~.,data=spam,kernel="rbfdot",kpar=list(sigma=0.05),C=which.min(err_va)*by,scaled=FALSE)
+mailtype <- predict(filter3,te[,-58])
+t <- table(mailtype,te[,58])
+err3 <- (t[1,2]+t[2,1])/sum(t)
+err3
+# filter3
+# trained by whole data
+# evaluated by test data
+
+pred_vec = c()
+sigma = 0.05
+support_vector_indices = alphaindex(filter3)[[1]]
+support_vector = spam[support_vector_indices, -58]
+sv_labels = spam[support_vector_indices, 58]
+sv_labels = ifelse(sv_labels == "spam", -1, 1)
+
+coef = coef(filter3)[[1]]
+intercept = - b(filter3)
+x = spam[, -58]
+for(i in 1:10){ # We produce predictions for just the first 10 points in the dataset.
+  k2 = 0
+  for(j in 1:length(support_vector_indices)){
+    rbf = exp(-sum((x[i,] - support_vector[j,])^2)/(2 * sigma^2))
+    k2 = k2 + rbf * coef[j]
+  }
+  pred_vec=c(pred_vec, k2 + intercept)
+}
+pred_vec_label = ifelse(pred_vec < 0, -1, 1)
+
+
+pred_func = as.vector(predict(filter3,spam[1:10,-58], type = "decision"))
+pred_func_label = ifelse(pred_func < 0, -1, 1)
+```
+
 
 ## Code for Assignment 4
 ```{r, echo=TRUE, eval=FALSE}
