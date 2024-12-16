@@ -113,3 +113,4 @@ predictions_inver <- predict(nn_inver, data_inver)
 plot(data_inver$Sin_inver, data_inver$Var_inv, col = "blue", main = "Neural Network Predictions: sin(x) -> x",
      xlab = "sin(x)", ylab = "x", cex = 1, pch = 16,ylim = c(-1,10))
 points(data_inver$Sin_inver, predictions_inver, col = "red", cex = 1, pch = 16)
+

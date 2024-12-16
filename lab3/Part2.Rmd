@@ -511,7 +511,7 @@ ability of the model.
 However, at the later stage of training, if the parameters of some
 layers continue to learn and adjust, the input through this layer will
 fall into the positive semi-axis of the ReLU most of the time (that is,
-the x\$\>\$0 region). In this case, the output of these ReLU units
+the x$>$0 region). In this case, the output of these ReLU units
 approaches the linear mapping state of y=x, and the layer's
 transformation of the input features no longer has the nonlinear
 characteristics of the previous layer. When most of the active elements
@@ -584,7 +584,7 @@ To train neural networks, the data used comes from
   
 If the input x equals to 20, the value in hidden layer after the sigmoid function is:  
 
-1 1 1 1.018783e-12 1.241817e-10 9.302363e-08 0.002334578 5.432176e-14 1 8.941231e-09
+1, 1, 1, 1.018783e-12, 1.241817e-10, 9.302363e-08, 0.002334578, 5.432176e-14, 1, 8.941231e-09
 
 It can be seen that when the input is greater than 10, the output form of the hidden layer after conversion is: the first, second, third and ninth data are infinitely close to 1, while the rest are infinitely close to 0, which leads to the subsequent output being a fixed linear transformation.
 
@@ -603,9 +603,10 @@ Looking at the weights of the output layer, we can see that the values of the fi
   \begin{minipage}{0.4\textwidth}
 The sine function is periodic, meaning the same $sin(x)$ value can correspond to multiple $x$ values.
 
-The neural network has only one output neuron, which makes it inherently unable to produce multiple outputs for the same input. Instead, it settles on approximating one of the valid $x$ values for a given $sin(x)$.
+The neural network has only one output neuron, which makes it inherently unable to produce multiple outputs for the same input. The neural network will eventually find an approximate linear relationship in the training process, and cannot distinguish the specific $x$ for each $sin(x)$.
 
-From the graph, we can see that the model chooses to predict the smallest possible $x$ that corresponds to each $sin(x)$ value. This is likely because the training process minimizes the MSE loss, which encourages predictions to converge toward one specific solution rather than splitting across multiple possibilities.
+When there is a one-to-many mapping, MSE tends to make the predicted value closer to the average of all possible outputs than to a specific solution.
+
 
   \end{minipage}
   \hfill
@@ -815,12 +816,13 @@ Var_inv <- runif(500, 0, 10)
 Sin_inver <- sin(Var_inv)           
 data_inver <- data.frame(Sin_inver, Var_inv)  
 
-nn_inver <- neuralnet(Sin_inver ~ Var_inv, data = data_inver, hidden = 10, act.fct = "logistic", linear.output = TRUE,
+nn_inver <- neuralnet(Var_inv~Sin_inver, data = data_inver, hidden = 10, threshold=0.1,linear.output = TRUE,
                 startweights = list(
                   matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
                   matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
                          nrow = n_hidden, ncol = n_output)
                 ))
+
 predictions_inver <- predict(nn_inver, data_inver)
 
 plot(data_inver$Sin_inver, data_inver$Var_inv, col = "blue", main = "Neural Network Predictions: sin(x) -> x",
