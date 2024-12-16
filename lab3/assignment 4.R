@@ -101,12 +101,13 @@ Var_inv <- runif(500, 0, 10)
 Sin_inver <- sin(Var_inv)           
 data_inver <- data.frame(Sin_inver, Var_inv)  
 
-nn_inver <- neuralnet(Sin_inver ~ Var_inv, data = data_inver, hidden = 10, act.fct = "logistic", linear.output = TRUE,
+nn_inver <- neuralnet(Var_inv~Sin_inver, data = data_inver, hidden = 10, threshold=0.1,linear.output = TRUE,
                 startweights = list(
                   matrix(winit[1:weights_input_to_hidden], nrow = n_input, ncol = n_hidden),
                   matrix(winit[(weights_input_to_hidden + 1):(weights_input_to_hidden + weights_hidden_to_output)],
                          nrow = n_hidden, ncol = n_output)
                 ))
+
 predictions_inver <- predict(nn_inver, data_inver)
 
 plot(data_inver$Sin_inver, data_inver$Var_inv, col = "blue", main = "Neural Network Predictions: sin(x) -> x",

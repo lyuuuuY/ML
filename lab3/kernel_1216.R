@@ -5,8 +5,8 @@ temps <- read.csv("temps50k.csv")
 st <- merge(stations,temps,by="station_number")
 
 #smooth coefficients/width
-h_distance <- 100000    # These three values are up to the students
-h_date <-10
+h_distance <- 400000    # These three values are up to the students
+h_date <-30
 h_time <-2
 
 #latitude to be predicted  
@@ -20,9 +20,8 @@ date <- "2013-11-04" # The date to predict (up to the students)
 datetime <- seq(from=as.POSIXct("2013-11-04 04:00:00"),
                 to=as.POSIXct("2013-11-04 24:00:00"),
                 by="2 hours")
-length(datetime)
-temp <- vector(length=length(datetime))
 
+temp <- vector(length=length(datetime))
 
 
 #Combines date and time into a datetime object
@@ -75,7 +74,7 @@ Raw_day_Distance <- abs(st_filtered$converted_date-predict_converted)
 st_filtered$day_distance <- pmin(Raw_day_Distance,365-Raw_day_Distance)
 
  #compute day kernel value
-h_date <-10
+h_date <-30
 k_Daydistance <- exp(-st_filtered$day_distance^2/(2*h_date^2))
 st_filtered$k_Daydistance <- k_Daydistance
 
@@ -141,10 +140,12 @@ for(i in seq_along(temp)){
 temp
 temp_multiply
 
+time_tables <- seq(from=4,by=2,length.out=length(temp))
 plot(temp, type = "o",col="red" ,xaxt = "n",
-     xlab = "time index",ylab = "Temperature",main= "Temperature prediction",
-     ylim = range(temp_multiply))  # 禁用默认 x 轴
-axis(1, at = 1:length(temp_multiply), labels = 1:length(temp_multiply))  
+     xlab = "Time ",ylab = "Temperature(Celsius)",main= "Temperature prediction\n(2013-11-04)",
+     ylim = range(c(temp, temp_multiply))
+)  # 禁用默认 x 轴
+axis(1, at = 1:length(temp_multiply), labels = paste0(time_tables,":00"))  
 lines(temp_multiply,type = "o",col="blue")
 par(xpd = TRUE)
 legend("bottom",col = c("red","blue"),legend=c("Sum of Kernel","Multiply of Kernel"),lty = 1, pch = 1)
